@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.trevjonez.agrp
+package com.trevjonez.agrp.github
 
-import org.gradle.api.Project
-import org.gradle.api.UnknownDomainObjectException
-
-fun <T> MutableSet<T>.addOrLog(action: () -> T, message: String, project: Project) {
-  try {
-    this.add(action.invoke())
-  } catch (e: UnknownDomainObjectException) {
-    project.logger.info(message)
-  }
+/**
+ * @author TrevJonez
+ */
+class PendingRelease {
+  var tag_name: String? = null
+  var target_commitish: String? = null
+  var name: String? = null
+  var body: String? = null
+  var draft: Boolean? = null
+  var prerelease: Boolean? = null
 }

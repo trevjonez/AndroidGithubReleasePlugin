@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package com.trevjonez.agrp
+package com.trevjonez.agrp.okhttp
 
-import org.gradle.api.Project
-import org.gradle.api.UnknownDomainObjectException
+import okhttp3.Interceptor
+import okhttp3.Response
 
-fun <T> MutableSet<T>.addOrLog(action: () -> T, message: String, project: Project) {
-  try {
-    this.add(action.invoke())
-  } catch (e: UnknownDomainObjectException) {
-    project.logger.info(message)
+/**
+ * Add a custom header via interceptor
+ *
+ * @author TrevJonez
+ */
+class HeaderInterceptor(val name: String, val value: String) : Interceptor {
+  override fun intercept(chain: Interceptor.Chain?): Response {
+    val request = chain!!
+            .request()!!
+            .newBuilder()!!
+            .header(name, value)
+            .build()
+
+    return chain.proceed(request)
   }
 }

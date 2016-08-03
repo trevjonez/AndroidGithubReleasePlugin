@@ -51,5 +51,8 @@ AndroidGithubRelease {
     debug {
       preRelease true
     }
+    release {
+      assets 'build.gradle', 'local.properties'
+    }
   }
 }

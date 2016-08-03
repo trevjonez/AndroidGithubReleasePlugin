@@ -16,13 +16,8 @@
 
 package com.trevjonez.agrp
 
-import org.gradle.api.Project
-import org.gradle.api.UnknownDomainObjectException
-
-fun <T> MutableSet<T>.addOrLog(action: () -> T, message: String, project: Project) {
-  try {
-    this.add(action.invoke())
-  } catch (e: UnknownDomainObjectException) {
-    project.logger.info(message)
-  }
+/**
+ * @author TrevJonez
+ */
+open class UploadReleaseAssetTask : AgrpTask() {
 }

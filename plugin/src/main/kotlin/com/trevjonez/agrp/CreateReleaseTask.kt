@@ -16,13 +16,17 @@
 
 package com.trevjonez.agrp
 
-import org.gradle.api.Project
-import org.gradle.api.UnknownDomainObjectException
+import org.gradle.api.tasks.TaskAction
 
-fun <T> MutableSet<T>.addOrLog(action: () -> T, message: String, project: Project) {
-  try {
-    this.add(action.invoke())
-  } catch (e: UnknownDomainObjectException) {
-    project.logger.info(message)
+/**
+ * @author TrevJonez
+ */
+open class CreateReleaseTask : AgrpTask() {
+
+  @TaskAction
+  fun createRelease() {
+    //getReleaseByTagName
+    //if the release exists check if the config allows overwriting, else fail build
+    //if the release doesn't exist or we are ok to overwrite, post/patch the info up, be sure to hold the ID and asset upload url
   }
 }

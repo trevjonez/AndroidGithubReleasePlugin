@@ -14,30 +14,27 @@
  * limitations under the License.
  */
 
-package com.trevjonez.agrp
-
-import java.util.*
+package com.trevjonez.agrp.github
 
 /**
  * @author TrevJonez
  */
-open class AgrpConfigExtension(val name: String) {
-
-  var apiUrl: String? = null
-  var owner: String? = null
-  var repo: String? = null
-  var accessToken: String? = null
-  var tagName: String? = null
-  var targetCommitish: String? = null
-  var releaseName: String? = null
-  var releasebody: String? = null
+class ReleaseResponse {
+  var url: String? = null
+  var html_url: String? = null
+  var assets_url: String? = null
+  var upload_url: String? = null
+  var tarball_url: String? = null
+  var zipball_url: String? = null
+  var id: Int? = null
+  var tag_name: String? = null
+  var target_commitish: String? = null
+  var name: String? = null
+  var body: String? = null
   var draft: Boolean? = null
-  var preRelease: Boolean? = null
-
-  internal var consumed = false
-  internal val assets = LinkedList<String>()
-
-  fun assets(vararg assetPaths: String) {
-    this.assets.addAll(assetPaths)
-  }
+  var prerelease: Boolean? = null
+  var created_at: String? = null
+  var published_at: String? = null
+  var author: User? = null
+  var assets: MutableList<Asset?>? = null
 }

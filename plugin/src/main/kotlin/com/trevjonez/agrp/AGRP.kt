@@ -48,24 +48,51 @@ class AGRP : Plugin<Project> {
               "AndroidGithubRelease is only applicable to android builds")
 
       when (androidExtension) {
-        is AppExtension -> androidExtension.applicationVariants.all(createAndUpdateTasks(project))
-        is LibraryExtension -> androidExtension.libraryVariants.all(createAndUpdateTasks(project))
-        is TestExtension -> androidExtension.applicationVariants.all(createAndUpdateTasks(project))
+        is AppExtension -> androidExtension.applicationVariants.all(createTasks(project))
+        is LibraryExtension -> androidExtension.libraryVariants.all(createTasks(project))
+        is TestExtension -> androidExtension.applicationVariants.all(createTasks(project))
       }
     }
   }
 
-  private fun createAndUpdateTasks(project: Project): Action<BaseVariant> {
+  private fun createTasks(project: Project): Action<BaseVariant> {
     return Action { variant ->
       project.logger.info("Creating tasks for variant: \"${variant.name}\"")
-      val configs = LinkedList<AgrpConfigExtension>()
 
-      @Suppress("UNCHECKED_CAST")
-      val configContainer = project.extensionByPath(NamedDomainObjectContainer::class.java, "AndroidGithubRelease", "androidConfigs") as NamedDomainObjectContainer<AgrpConfigExtension>
-      configs.addOrLog({ configContainer.getByName(variant.buildType.name) }, "No AGRP config with name \"${variant.buildType.name}\"", project)
-      variant.productFlavors.forEach {
-        configs.addOrLog({ configContainer.getByName(it.name) }, "No AGRP config with name \"${it.name}\"", project)
-      }
+      val configs = gatherConfigExtensions(project, variant)
+
+      val createTaskOptions = LinkedHashMap<String, Any>()
+      createTaskOptions.put("name", "create${variant.name.capitalize()}GithubRelease")
+      createTaskOptions.put("type", CreateReleaseTask::class.java)
+      createTaskOptions.put("group", "Android Github Release Plugin")
+      createTaskOptions.put("description", "Create a release/tag on github for the \"${variant.name}\" build variant")
+
+      //The system creates the instance here so we have to do the DI immediately following instantiation
+      val createReleaseTask = project.tasks.create(createTaskOptions) as CreateReleaseTask
+      createReleaseTask.configs = configs
     }
+  }
+
+  private fun gatherConfigExtensions(project: Project, variant: BaseVariant): Set<AgrpConfigExtension> {
+    val configs = LinkedHashSet<AgrpConfigExtension>()
+
+    @Suppress("UNCHECKED_CAST")
+    val configContainer = project.extensionByPath(NamedDomainObjectContainer::class.java, "AndroidGithubRelease", "androidConfigs") as NamedDomainObjectContainer<AgrpConfigExtension>
+
+    //Debug / Release
+    configs.addOrLog({ configContainer.getByName(variant.buildType.name) }, "No AGRP config with name \"${variant.buildType.name}\"", project)
+
+    //Flavors in order
+    variant.productFlavors.forEach {
+      configs.addOrLog({ configContainer.getByName(it.name) }, "No AGRP config with name \"${it.name}\"", project)
+    }
+
+    //Full variant name
+    configs.addOrLog({ configContainer.getByName(variant.name) }, "No AGRP config with name \"${variant.name}\"", project)
+
+    //Keep track of config usage, we will throw warnings later
+    configs.forEach { it.consumed = true }
+
+    return configs
   }
 }

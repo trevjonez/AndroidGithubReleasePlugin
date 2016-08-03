@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package com.trevjonez.agrp
+package com.trevjonez.agrp.github
 
-import org.gradle.api.Project
-import org.gradle.api.UnknownDomainObjectException
-
-fun <T> MutableSet<T>.addOrLog(action: () -> T, message: String, project: Project) {
-  try {
-    this.add(action.invoke())
-  } catch (e: UnknownDomainObjectException) {
-    project.logger.info(message)
-  }
+/**
+ * @author TrevJonez
+ */
+class Asset {
+  var url: String? = null
+  var browser_download_url: String? = null
+  var id: Int? = null
+  var name: String? = null
+  var label: String? = null
+  var state: String? = null
+  var content_type: String? = null
+  var size: Int? = null
+  var download_count: Int? = null
+  var created_at: String? = null
+  var updated_at: String? = null
+  var uploader: User? = null
 }
