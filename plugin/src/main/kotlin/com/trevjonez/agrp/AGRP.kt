@@ -21,7 +21,6 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.Action
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -31,11 +30,10 @@ import java.util.*
  * @author TrevJonez
  */
 class AGRP : Plugin<Project> {
+  lateinit var baseExtension: AgrpBaseExtension
+
   override fun apply(project: Project) {
-    project.extensions.create("AndroidGithubRelease", AgrpConfigBaseExtension::class.java)
-    val baseExtension = project.extensions.findByName("AndroidGithubRelease") as ExtensionAware
-    val flypeContainer = project.container(AgrpConfigExtension::class.java)
-    baseExtension.extensions.add("androidConfigs", flypeContainer)
+    baseExtension = project.extensions.create("AndroidGithubRelease", AgrpBaseExtension::class.java, project)
 
     project.afterEvaluate(validateAndAddTasks())
   }
@@ -76,19 +74,18 @@ class AGRP : Plugin<Project> {
   private fun gatherConfigExtensions(project: Project, variant: BaseVariant): Set<AgrpConfigExtension> {
     val configs = LinkedHashSet<AgrpConfigExtension>()
 
-    @Suppress("UNCHECKED_CAST")
-    val configContainer = project.extensionByPath(NamedDomainObjectContainer::class.java, "AndroidGithubRelease", "androidConfigs") as NamedDomainObjectContainer<AgrpConfigExtension>
+    configs.add((baseExtension as ExtensionAware).extensions.getByName("defaultConfig") as AgrpConfigExtension)
 
     //Debug / Release
-    configs.addOrLog({ configContainer.getByName(variant.buildType.name) }, "No AGRP config with name \"${variant.buildType.name}\"", project)
+    configs.addOrLog({ baseExtension.androidConfigs.getByName(variant.buildType.name) }, "No AGRP config with name \"${variant.buildType.name}\"", project)
 
     //Flavors in order
     variant.productFlavors.forEach {
-      configs.addOrLog({ configContainer.getByName(it.name) }, "No AGRP config with name \"${it.name}\"", project)
+      configs.addOrLog({ baseExtension.androidConfigs.getByName(it.name) }, "No AGRP config with name \"${it.name}\"", project)
     }
 
     //Full variant name
-    configs.addOrLog({ configContainer.getByName(variant.name) }, "No AGRP config with name \"${variant.name}\"", project)
+    configs.addOrLog({ baseExtension.androidConfigs.getByName(variant.name) }, "No AGRP config with name \"${variant.name}\"", project)
 
     //Keep track of config usage, we will throw warnings later
     configs.forEach { it.consumed = true }

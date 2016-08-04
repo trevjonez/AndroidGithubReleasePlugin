@@ -46,12 +46,24 @@ repositories {
   jcenter()
 }
 
+Properties properties = new Properties()
+properties.load(project.file('local.properties').newDataInputStream())
+
 AndroidGithubRelease {
+
+  defaultConfig {
+    tagName "0.2.0"
+    owner "trevjonez"
+    repo "PluginTesting"
+    accessToken properties.getProperty("GITHUB_API_TOKEN")
+  }
+
   androidConfigs {
     debug {
       preRelease true
     }
     release {
+      overwrite true
       assets 'build.gradle', 'local.properties'
     }
   }

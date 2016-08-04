@@ -41,7 +41,7 @@ interface ReleaseService {
   @PATCH("/repos/{owner}/{repo}/releases/{id}")
   fun patchRelease(@Path("owner") owner: String,
                    @Path("repo") repo: String,
-                   @Path("id") id: String,
+                   @Path("id") id: Int,
                    @Body pendingRelease: PendingRelease,
                    @Header("Authorization") oAuth2: String): Call<ReleaseResponse>
 
@@ -50,7 +50,7 @@ interface ReleaseService {
   fun uploadReleaseAsset(@Path("upload_url") uploadUrl: String,
                          @Path("owner") owner: String,
                          @Path("repo") repo: String,
-                         @Path("id") id: String,
+                         @Path("id") id: Int,
                          @Query("name") fileName: String,
                          @Part file: MultipartBody.Part,
                          @Header("Content-Type") contentType: String,

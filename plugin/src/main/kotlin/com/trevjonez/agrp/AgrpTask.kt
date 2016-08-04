@@ -16,9 +16,11 @@
 
 package com.trevjonez.agrp
 
+import com.trevjonez.agrp.github.PendingRelease
 import com.trevjonez.agrp.github.ReleaseService
 import com.trevjonez.agrp.okhttp.HeaderInterceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import retrofit2.Retrofit
@@ -31,23 +33,99 @@ abstract class AgrpTask : DefaultTask() {
 
   lateinit var configs: Set<AgrpConfigExtension>
 
+  private var pendingRelease: PendingRelease? = null
+
   protected fun releaseService(): ReleaseService {
-    val okhttp3 = OkHttpClient.Builder().addInterceptor(HeaderInterceptor("Accept", "application/vnd.github.v3+json")).build()
+    val loggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY) //todo Remove this once we have things working
+
+    val okhttp3 = OkHttpClient.Builder()
+            .addInterceptor(HeaderInterceptor("Accept", "application/vnd.github.v3+json"))
+            .addInterceptor(loggingInterceptor)
+            .build()
+
     val retrofit = Retrofit.Builder()
             .client(okhttp3)
             .addConverterFactory(MoshiConverterFactory.create())
-            .baseUrl(baseUrl())
+            .baseUrl(apiUrl())
             .build()
 
     return retrofit.create(ReleaseService::class.java)
   }
 
-  private fun baseUrl(): String {
-    var result: String? = null
-    configs.forEach { if (it.apiUrl != null) result = it.apiUrl }
+  private fun apiUrl(): String {
+    return cascadeLookup({ it.apiUrl }, "apiUrl", validString())!!
+  }
 
-    if (result == null || result!!.trim().length == 0) throw GradleException("No valid api url found")
+  fun owner(): String {
+    return cascadeLookup({ it.owner }, "owner", validString())!!
+  }
 
-    return result!!
+  fun repo(): String {
+    return cascadeLookup({ it.repo }, "repo", validString())!!
+  }
+
+  fun accessToken(): String {
+    return cascadeLookup({ it.accessToken }, "accessToken", validString())!!
+  }
+
+  fun pendingRelease(): PendingRelease {
+    if (pendingRelease == null) {
+      pendingRelease = PendingRelease()
+      pendingRelease?.tag_name = tagName()
+      pendingRelease?.target_commitish = targetCommitish()
+      pendingRelease?.name = releaseName()
+      pendingRelease?.body = releasebody()
+      pendingRelease?.draft = draft()
+      pendingRelease?.prerelease = preRelease()
+    }
+
+    return pendingRelease!!
+  }
+
+  private fun tagName(): String {
+    return cascadeLookup({ it.tagName }, "tagName", validString())!!
+  }
+
+  private fun targetCommitish(): String? {
+    return cascadeLookup({ it.targetCommitish }, optional = true)
+  }
+
+  private fun releaseName(): String? {
+    return cascadeLookup({ it.releaseName }, optional = true)
+  }
+
+  private fun releasebody(): String? {
+    return cascadeLookup({ it.releasebody }, optional = true)
+  }
+
+  private fun draft(): Boolean? {
+    return cascadeLookup({ it.draft }, optional = true)
+  }
+
+  private fun preRelease(): Boolean? {
+    return cascadeLookup({ it.preRelease }, optional = true)
+  }
+
+  fun overwrite(): Boolean {
+    return cascadeLookup({ it.overwrite }, optional = true) ?: false
+  }
+
+  private fun validString(): (String) -> Boolean = { it.trim().length > 0 }
+
+  private fun <T> cascadeLookup(fieldLookup: (AgrpConfigExtension) -> T?,
+                                fieldName: String = "",
+                                isValid: (T) -> Boolean = { true },
+                                optional: Boolean = false): T? {
+    var result: T? = null
+    configs.forEach {
+      val lookup = fieldLookup.invoke(it)
+      if (lookup != null)
+        result = lookup
+    }
+
+    if (!optional && (result == null || !isValid.invoke(result!!)))
+      throw GradleException("Invalid `$fieldName` config value: $result")
+
+    return result
   }
 }

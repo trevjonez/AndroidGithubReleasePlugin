@@ -16,23 +16,24 @@
 
 package com.trevjonez.agrp
 
+import groovy.lang.Closure
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 
-fun <T> Project.extensionByPath(type: Class<T>, vararg path: String): T {
-  var current = project.extensions
-  var result: T? = null
+/**
+ * @author TrevJonez
+ */
+open class AgrpBaseExtension(project: Project) {
+  val androidConfigs: NamedDomainObjectContainer<AgrpConfigExtension>
 
-  val iterator = path.iterator()
-  do {
-    val next = iterator.next()
-    @Suppress("UNCHECKED_CAST")
-    when {
-      iterator.hasNext() -> current = (current.findByName(next) as ExtensionAware).extensions
-      type.isAssignableFrom(current.findByName(next).javaClass) -> result = current.findByName(next) as T
-      else -> throw IllegalStateException("Cannot find extension of type: \"${type.simpleName}\" at path: \"$path\" ")
-    }
-  } while (iterator.hasNext())
+  init {
+    androidConfigs = project.container(AgrpConfigExtension::class.java)
+    val defaultConfig = (this as ExtensionAware).extensions.create("defaultConfig", AgrpConfigExtension::class.java, "defaultConfig")
+    defaultConfig.apiUrl = "https://api.github.com"
+  }
 
-  return result!!
+  fun androidConfigs(closure: Closure<Any>) {
+    androidConfigs.configure(closure)
+  }
 }

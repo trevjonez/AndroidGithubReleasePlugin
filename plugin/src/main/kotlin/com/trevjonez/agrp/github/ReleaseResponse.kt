@@ -37,4 +37,8 @@ class ReleaseResponse {
   var published_at: String? = null
   var author: User? = null
   var assets: MutableList<Asset?>? = null
+
+  override fun toString(): String {
+    return "ReleaseResponse(url=$url, html_url=$html_url, assets_url=$assets_url, upload_url=$upload_url, tarball_url=$tarball_url, zipball_url=$zipball_url, id=$id, tag_name=$tag_name, target_commitish=$target_commitish, name=$name, body=$body, draft=$draft, prerelease=$prerelease, created_at=$created_at, published_at=$published_at, author=$author, assets=$assets)"
+  }
 }

@@ -28,16 +28,63 @@ open class AgrpConfigExtension(val name: String) {
   var repo: String? = null
   var accessToken: String? = null
   var tagName: String? = null
+
   var targetCommitish: String? = null
   var releaseName: String? = null
   var releasebody: String? = null
   var draft: Boolean? = null
   var preRelease: Boolean? = null
 
+  var overwrite: Boolean? = null
+
   internal var consumed = false
   internal val assets = LinkedList<String>()
 
   fun assets(vararg assetPaths: String) {
     this.assets.addAll(assetPaths)
+  }
+
+  fun apiUrl(apiUrl: String) {
+    this.apiUrl = apiUrl
+  }
+
+  fun owner(owner: String) {
+    this.owner = owner
+  }
+
+  fun repo(repo: String) {
+    this.repo = repo
+  }
+
+  fun accessToken(accessToken: String) {
+    this.accessToken = accessToken
+  }
+
+  fun tagName(tagName: String) {
+    this.tagName = tagName
+  }
+
+  fun targetCommitish(targetCommitish: String) {
+    this.targetCommitish = targetCommitish
+  }
+
+  fun releaseName(releaseName: String) {
+    this.releaseName = releaseName
+  }
+
+  fun releasebody(releasebody: String) {
+    this.releasebody = releasebody
+  }
+
+  fun draft(draft: Boolean) {
+    this.draft = draft
+  }
+
+  fun preRelease(preRelease: Boolean) {
+    this.preRelease = preRelease
+  }
+
+  fun overwrite(overwrite: Boolean) {
+    this.overwrite = overwrite
   }
 }

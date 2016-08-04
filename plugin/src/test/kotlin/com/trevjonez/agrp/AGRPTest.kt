@@ -38,7 +38,9 @@ class AGRPTest {
   fun setUp() {
     buildFile = testProjectDir.newFile("build.gradle")
     propertiesFile = testProjectDir.newFile("local.properties")
-    propertiesFile.writeText("sdk.dir=/Sources/android_sdk_mac_x86")
+
+    val localProp = File(javaClass.classLoader.getResource("local.properties").path)
+    propertiesFile.writeBytes(localProp.readBytes())
   }
 
   @Test
@@ -52,7 +54,7 @@ class AGRPTest {
     val baseExtension = project.extensions.findByName("AndroidGithubRelease") as ExtensionAware
     assertThat(baseExtension)
             .isNotNull()
-            .isInstanceOf(AgrpConfigExtension::class.java)
+            .isInstanceOf(AgrpBaseExtension::class.java)
   }
 
   @Test
@@ -64,7 +66,8 @@ class AGRPTest {
             .withGradleVersion("2.13")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments("--stacktrace", "--info", "tasks")
+            .withArguments("--stacktrace", "--info", "tasks", "createReleaseGithubRelease")
+            .withDebug(true)
             .build()
 
     print(buildResult.output)

@@ -32,4 +32,8 @@ class Asset {
   var created_at: String? = null
   var updated_at: String? = null
   var uploader: User? = null
+
+  override fun toString(): String {
+    return "Asset(url=$url, browser_download_url=$browser_download_url, id=$id, name=$name, label=$label, state=$state, content_type=$content_type, size=$size, download_count=$download_count, created_at=$created_at, updated_at=$updated_at, uploader=$uploader)"
+  }
 }

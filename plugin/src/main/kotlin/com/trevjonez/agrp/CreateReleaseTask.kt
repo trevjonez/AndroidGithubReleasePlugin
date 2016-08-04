@@ -16,17 +16,47 @@
 
 package com.trevjonez.agrp
 
+import com.trevjonez.agrp.github.ReleaseResponse
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
+import retrofit2.Call
 
 /**
  * @author TrevJonez
  */
 open class CreateReleaseTask : AgrpTask() {
 
+  lateinit var response: ReleaseResponse
+
   @TaskAction
   fun createRelease() {
-    //getReleaseByTagName
-    //if the release exists check if the config allows overwriting, else fail build
-    //if the release doesn't exist or we are ok to overwrite, post/patch the info up, be sure to hold the ID and asset upload url
+    val pendingRelease = pendingRelease()
+    val githubApi = releaseService()
+    val tagName = pendingRelease.tag_name
+    val releaseLookupCall = githubApi.getRelease(owner(), repo(), tagName!!, "token ${accessToken()}")
+    val releaseLookupResponse = releaseLookupCall.execute()
+
+    if (releaseLookupResponse.isSuccessful && !overwrite()) {
+      throw GradleException("A release with the specified tag name already exists.\n" +
+              "You can configure this task to overwrite the release @ that tag name with `overwrite = true`\n" +
+              releaseLookupResponse.body().toString())
+    }
+
+    val postPatchCall: Call<ReleaseResponse>?
+    if (releaseLookupResponse.isSuccessful) {
+      postPatchCall = githubApi.patchRelease(owner(), repo(), releaseLookupResponse.body().id!!, pendingRelease, "token ${accessToken()}")
+    } else {
+      postPatchCall = githubApi.postRelease(owner(), repo(), pendingRelease, "token ${accessToken()}")
+    }
+
+    val postPatchResponse = postPatchCall.execute()
+
+    if (!postPatchResponse.isSuccessful) {
+      throw GradleException("The github api call failed:\n${postPatchResponse.errorBody().string()}\n")
+    }
+
+    response = postPatchResponse.body()
+
+    println("Github release created: ${response.html_url}")
   }
 }
