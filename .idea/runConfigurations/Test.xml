@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test" type="JUnit" factoryName="JUnit">
+  <configuration default="false" name="Test" type="JUnit" factoryName="JUnit" singleton="true">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <module name="plugin" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -20,7 +20,9 @@
     <patterns />
     <method>
       <option name="Make" enabled="false" />
-      <option name="Android.Gradle.BeforeRunTask" enabled="true" goal="" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="classes" externalProjectPath="$PROJECT_DIR$/plugin" vmOptions="" scriptParameters="" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="testClasses" externalProjectPath="$PROJECT_DIR$/plugin" vmOptions="" scriptParameters="" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="pluginUnderTestMetadata" externalProjectPath="$PROJECT_DIR$/plugin" vmOptions="" scriptParameters="" />
     </method>
   </configuration>
 </component>

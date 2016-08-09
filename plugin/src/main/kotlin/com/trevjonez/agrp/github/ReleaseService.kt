@@ -46,11 +46,8 @@ interface ReleaseService {
                    @Header("Authorization") oAuth2: String): Call<ReleaseResponse>
 
   @Multipart
-  @POST("//{upload_url}/repos/{owner}/{repo}/releases/{id}/assets")
-  fun uploadReleaseAsset(@Path("upload_url") uploadUrl: String,
-                         @Path("owner") owner: String,
-                         @Path("repo") repo: String,
-                         @Path("id") id: Int,
+  @POST
+  fun uploadReleaseAsset(@Url uploadUrl: String,
                          @Query("name") fileName: String,
                          @Part file: MultipartBody.Part,
                          @Header("Content-Type") contentType: String,

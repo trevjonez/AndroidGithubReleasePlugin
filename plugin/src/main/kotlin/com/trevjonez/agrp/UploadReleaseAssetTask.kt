@@ -16,8 +16,16 @@
 
 package com.trevjonez.agrp
 
+import org.gradle.api.tasks.TaskAction
+
 /**
  * @author TrevJonez
  */
 open class UploadReleaseAssetTask : AgrpTask() {
+  lateinit var createTask: CreateReleaseTask
+
+  @TaskAction
+  fun uploadAsset() {
+
+  }
 }

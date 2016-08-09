@@ -66,12 +66,20 @@ class AGRPTest {
             .withGradleVersion("2.13")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments("--stacktrace", "--info", "tasks", "createReleaseGithubRelease")
+            .withArguments("--stacktrace", "--info", "tasks", "--all", "uploadReleaseAsset0")
             .withDebug(true)
             .build()
 
     print(buildResult.output)
 
-    assertThat(buildResult.output).contains("Android Github Release Plugin", "createDebugGithubRelease", "createReleaseGithubRelease")
+    assertThat(buildResult.output)
+            .contains("Android Github Release Plugin",
+                    "createDebugGithubRelease",
+                    "createReleaseGithubRelease",
+                    "uploadDebugAsset0",
+                    "uploadDebugAssets",
+                    "uploadReleaseAsset0",
+                    "uploadReleaseAsset1",
+                    "uploadReleaseAssets")
   }
 }

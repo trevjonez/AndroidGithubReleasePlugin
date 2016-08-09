@@ -21,6 +21,7 @@ import java.util.*
 /**
  * @author TrevJonez
  */
+@Suppress("unused")
 open class AgrpConfigExtension(val name: String) {
 
   var apiUrl: String? = null
@@ -38,7 +39,7 @@ open class AgrpConfigExtension(val name: String) {
   var overwrite: Boolean? = null
 
   internal var consumed = false
-  internal val assets = LinkedList<String>()
+  internal val assets = LinkedHashSet<String>()
 
   fun assets(vararg assetPaths: String) {
     this.assets.addAll(assetPaths)

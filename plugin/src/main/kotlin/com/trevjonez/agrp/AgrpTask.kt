@@ -25,6 +25,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.*
 
 /**
  * @author TrevJonez
@@ -126,6 +127,12 @@ abstract class AgrpTask : DefaultTask() {
     if (!optional && (result == null || !isValid.invoke(result!!)))
       throw GradleException("Invalid `$fieldName` config value: $result")
 
+    return result
+  }
+
+  fun assets(): Set<String> {
+    val result: MutableSet<String> = LinkedHashSet()
+    configs.forEach { result.addAll(it.assets) }
     return result
   }
 }
