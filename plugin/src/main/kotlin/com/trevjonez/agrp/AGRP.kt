@@ -90,7 +90,8 @@ class AGRP : Plugin<Project> {
 
         val uploadAssetTask = project.tasks.create(uploadAssetOptions) as UploadReleaseAssetTask
         uploadAssetTask.createTask = createReleaseTask
-
+        uploadAssetTask.assetFile = asset
+        
         assetUploadTasks.add(uploadAssetTask)
       }
 

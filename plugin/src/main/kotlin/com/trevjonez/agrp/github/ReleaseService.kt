@@ -16,7 +16,7 @@
 
 package com.trevjonez.agrp.github
 
-import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -45,11 +45,10 @@ interface ReleaseService {
                    @Body pendingRelease: PendingRelease,
                    @Header("Authorization") oAuth2: String): Call<ReleaseResponse>
 
-  @Multipart
   @POST
   fun uploadReleaseAsset(@Url uploadUrl: String,
                          @Query("name") fileName: String,
-                         @Part file: MultipartBody.Part,
-                         @Header("Content-Type") contentType: String,
+                         @Body file: RequestBody,
+                         @Header("Content-Type") contentType: String?,
                          @Header("Authorization") oAuth2: String): Call<Asset>
 }

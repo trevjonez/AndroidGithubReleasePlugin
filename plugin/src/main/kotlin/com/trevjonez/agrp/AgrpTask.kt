@@ -34,23 +34,33 @@ abstract class AgrpTask : DefaultTask() {
 
   lateinit var configs: Set<AgrpConfigExtension>
 
+  var releaseService: ReleaseService? = null
+
   private var pendingRelease: PendingRelease? = null
 
-  protected fun releaseService(): ReleaseService {
-    val loggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY) //todo Remove this once we have things working
+  fun releaseService(): ReleaseService {
+    //Cache the releaseService so multiple calls don't re allocate and any upload tasks can use the same instance
 
-    val okhttp3 = OkHttpClient.Builder()
-            .addInterceptor(HeaderInterceptor("Accept", "application/vnd.github.v3+json"))
-            .addInterceptor(loggingInterceptor)
-            .build()
+    if (releaseService == null) {
 
-    val retrofit = Retrofit.Builder()
-            .client(okhttp3)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .baseUrl(apiUrl())
-            .build()
+      val loggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
 
-    return retrofit.create(ReleaseService::class.java)
+      val okhttp3 = OkHttpClient.Builder()
+              .addInterceptor(HeaderInterceptor("Accept", "application/vnd.github.v3+json"))
+              .addInterceptor(loggingInterceptor)
+              .build()
+
+      val retrofit = Retrofit.Builder()
+              .client(okhttp3)
+              .addConverterFactory(MoshiConverterFactory.create())
+              .baseUrl(apiUrl())
+              .build()
+
+      releaseService = retrofit.create(ReleaseService::class.java)
+
+    }
+
+    return releaseService!!
   }
 
   private fun apiUrl(): String {

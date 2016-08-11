@@ -30,11 +30,8 @@ open class CreateReleaseTask : AgrpTask() {
 
   @TaskAction
   fun createRelease() {
-    val pendingRelease = pendingRelease()
-    val githubApi = releaseService()
-    val tagName = pendingRelease.tag_name
-    val releaseLookupCall = githubApi.getRelease(owner(), repo(), tagName!!, "token ${accessToken()}")
-    val releaseLookupResponse = releaseLookupCall.execute()
+
+    val releaseLookupResponse = releaseService().getRelease(owner(), repo(), pendingRelease().tag_name!!, "token ${accessToken()}").execute()
 
     if (releaseLookupResponse.isSuccessful && !overwrite()) {
       throw GradleException("A release with the specified tag name already exists.\n" +
@@ -44,15 +41,15 @@ open class CreateReleaseTask : AgrpTask() {
 
     val postPatchCall: Call<ReleaseResponse>?
     if (releaseLookupResponse.isSuccessful) {
-      postPatchCall = githubApi.patchRelease(owner(), repo(), releaseLookupResponse.body().id!!, pendingRelease, "token ${accessToken()}")
+      postPatchCall = releaseService().patchRelease(owner(), repo(), releaseLookupResponse.body().id!!, pendingRelease(), "token ${accessToken()}")
     } else {
-      postPatchCall = githubApi.postRelease(owner(), repo(), pendingRelease, "token ${accessToken()}")
+      postPatchCall = releaseService().postRelease(owner(), repo(), pendingRelease(), "token ${accessToken()}")
     }
 
     val postPatchResponse = postPatchCall.execute()
 
     if (!postPatchResponse.isSuccessful) {
-      throw GradleException("The github api call failed:\n${postPatchResponse.errorBody().string()}\n")
+      throw GradleException("The ${postPatchCall.request().method()} github api call failed:\n${postPatchResponse.errorBody().string()}\n")
     }
 
     response = postPatchResponse.body()
