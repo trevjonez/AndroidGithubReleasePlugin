@@ -57,6 +57,7 @@ AndroidGithubRelease {
     repo "PluginTesting"
     accessToken properties.getProperty("GITHUB_API_TOKEN")
     assets 'build.gradle'
+    overwrite true
   }
 
   androidConfigs {
@@ -64,7 +65,6 @@ AndroidGithubRelease {
       preRelease true
     }
     release {
-      overwrite true
       assets 'local.properties'
     }
   }

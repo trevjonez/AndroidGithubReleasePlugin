@@ -94,7 +94,7 @@ abstract class AgrpTask : DefaultTask() {
   }
 
   private fun tagName(): String {
-    return cascadeLookup({ it.tagName }, "tagName", validString())!!
+    return applyModifiers(cascadeLookup({ it.tagName }, "tagName", validString())!!)
   }
 
   private fun targetCommitish(): String? {
@@ -143,6 +143,12 @@ abstract class AgrpTask : DefaultTask() {
   fun assets(): Set<String> {
     val result: MutableSet<String> = LinkedHashSet()
     configs.forEach { result.addAll(it.assets) }
+    return result
+  }
+
+  private fun applyModifiers(tagName: String): String {
+    var result = tagName
+    configs.forEach { result = it.tagModifier?.transform(result) ?: result }
     return result
   }
 }

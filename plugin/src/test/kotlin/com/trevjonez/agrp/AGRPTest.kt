@@ -58,15 +58,15 @@ class AGRPTest {
   }
 
   @Test
-  fun applyPlugin2() {
-    val buildScript = File(javaClass.classLoader.getResource("vanilla.gradle").path)
+  fun vanilla() {
+    val buildScript = File(javaClass.classLoader.getResource("vanilla.groovy").path)
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
             .withGradleVersion("2.13")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments("--stacktrace", "--info", "tasks", "--all", "uploadReleaseAsset0")
+            .withArguments("tasks", "uploadDebugAssets")
             .withDebug(true)
             .build()
 
@@ -74,12 +74,101 @@ class AGRPTest {
 
     assertThat(buildResult.output)
             .contains("Android Github Release Plugin",
+
                     "createDebugGithubRelease",
-                    "createReleaseGithubRelease",
                     "uploadDebugAsset0",
                     "uploadDebugAssets",
+
+                    "createReleaseGithubRelease",
                     "uploadReleaseAsset0",
                     "uploadReleaseAsset1",
                     "uploadReleaseAssets")
+  }
+
+  @Test
+  fun neapolitan() {
+    val buildScript = File(javaClass.classLoader.getResource("neapolitan.groovy").path)
+    buildFile.writeBytes(buildScript.readBytes())
+
+    val buildResult = GradleRunner.create()
+            .withGradleVersion("2.13")
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments("tasks", "uploadStrawberryDebugAssets")
+            .withDebug(true)
+            .build()
+
+    print(buildResult.output)
+
+    assertThat(buildResult.output)
+            .contains("Android Github Release Plugin",
+
+                    "createVanillaDebugGithubRelease",
+                    "createChocolateDebugGithubRelease",
+                    "createStrawberryDebugGithubRelease",
+
+                    "createVanillaReleaseGithubRelease",
+                    "createChocolateReleaseGithubRelease",
+                    "createStrawberryReleaseGithubRelease",
+
+                    "uploadVanillaDebugAsset0",
+                    "uploadVanillaDebugAsset1",
+                    "uploadVanillaDebugAssets",
+
+                    "uploadChocolateDebugAsset0",
+                    "uploadChocolateDebugAssets",
+
+                    "uploadStrawberryDebugAsset0",
+                    "uploadStrawberryDebugAssets",
+
+                    "uploadVanillaReleaseAsset0",
+                    "uploadVanillaReleaseAssets",
+
+                    "uploadChocolateReleaseAssets",
+
+                    "uploadStrawberryReleaseAssets")
+  }
+
+  @Test
+  fun rockyRoad() {
+    val buildScript = File(javaClass.classLoader.getResource("rocky_road.groovy").path)
+    buildFile.writeBytes(buildScript.readBytes())
+
+    val buildResult = GradleRunner.create()
+            .withGradleVersion("2.13")
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments("tasks", "uploadFudgePecanReleaseAssets")
+            .withDebug(true)
+            .build()
+
+    print(buildResult.output)
+
+    assertThat(buildResult.output)
+            .contains("Android Github Release Plugin",
+
+                    "createChocolatePeanutDebugGithubRelease",
+                    "uploadChocolatePeanutDebugAsset0",
+                    "uploadChocolatePeanutDebugAssets",
+
+                    "createChocolatePecanDebugGithubRelease",
+                    "uploadChocolatePecanDebugAsset0",
+                    "uploadChocolatePecanDebugAssets",
+
+                    "createChocolatePeanutReleaseGithubRelease",
+                    "uploadChocolatePeanutReleaseAsset0",
+                    "uploadChocolatePeanutReleaseAssets",
+
+                    "createChocolatePecanReleaseGithubRelease",
+                    "uploadChocolatePecanReleaseAsset0",
+                    "uploadChocolatePecanReleaseAssets",
+
+                    "createFudgePecanDebugGithubRelease",
+                    "uploadFudgePecanDebugAsset0",
+                    "uploadFudgePecanDebugAssets",
+
+                    "createFudgePecanReleaseGithubRelease",
+                    "uploadFudgePecanReleaseAsset0",
+                    "uploadFudgePecanReleaseAssets")
   }
 }

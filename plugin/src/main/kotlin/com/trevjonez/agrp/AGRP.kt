@@ -20,10 +20,7 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.api.BaseVariant
-import org.gradle.api.Action
-import org.gradle.api.DefaultTask
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+import org.gradle.api.*
 import org.gradle.api.plugins.ExtensionAware
 import java.io.File
 import java.util.*
@@ -75,7 +72,9 @@ class AGRP : Plugin<Project> {
       val createReleaseTask = project.tasks.create(createTaskOptions) as CreateReleaseTask
       createReleaseTask.configs = configs
 
-      val assetUploadTasks = LinkedList<UploadReleaseAssetTask>()
+      val variantTasks = LinkedList<Task>()
+      variantTasks.add(createReleaseTask)
+
       val assets = createReleaseTask.assets()
       assets.forEach {
         val asset = File(project.projectDir.path + File.separatorChar + it)
@@ -91,8 +90,8 @@ class AGRP : Plugin<Project> {
         val uploadAssetTask = project.tasks.create(uploadAssetOptions) as UploadReleaseAssetTask
         uploadAssetTask.createTask = createReleaseTask
         uploadAssetTask.assetFile = asset
-        
-        assetUploadTasks.add(uploadAssetTask)
+
+        variantTasks.add(uploadAssetTask)
       }
 
       val uploadAssetsOptions = LinkedHashMap<String, Any>()
@@ -100,7 +99,7 @@ class AGRP : Plugin<Project> {
       uploadAssetsOptions.put("type", DefaultTask::class.java)
       uploadAssetsOptions.put("group", AGRP_GROUP)
       uploadAssetsOptions.put("description", "Upload all assets to a release on github for the \"${variant.name}\" build variant")
-      uploadAssetsOptions.put("dependsOn", assetUploadTasks)
+      uploadAssetsOptions.put("dependsOn", variantTasks)
 
       project.tasks.create(uploadAssetsOptions)
     }
@@ -111,19 +110,16 @@ class AGRP : Plugin<Project> {
 
     configs.add((baseExtension as ExtensionAware).extensions.getByName("defaultConfig") as AgrpConfigExtension)
 
-    //Debug / Release
-    configs.addOrLog({ baseExtension.androidConfigs.getByName(variant.buildType.name) }, "No AGRP config with name \"${variant.buildType.name}\"", project)
-
     //Flavors in order
     variant.productFlavors.forEach {
       configs.addOrLog({ baseExtension.androidConfigs.getByName(it.name) }, "No AGRP config with name \"${it.name}\"", project)
     }
 
+    //Debug / Release
+    configs.addOrLog({ baseExtension.androidConfigs.getByName(variant.buildType.name) }, "No AGRP config with name \"${variant.buildType.name}\"", project)
+
     //Full variant name
     configs.addOrLog({ baseExtension.androidConfigs.getByName(variant.name) }, "No AGRP config with name \"${variant.name}\"", project)
-
-    //Keep track of config usage, we will throw warnings later
-    configs.forEach { it.consumed = true }
 
     return configs
   }

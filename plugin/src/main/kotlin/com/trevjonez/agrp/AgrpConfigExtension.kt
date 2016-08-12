@@ -16,6 +16,7 @@
 
 package com.trevjonez.agrp
 
+import org.gradle.api.Transformer
 import java.util.*
 
 /**
@@ -37,8 +38,8 @@ open class AgrpConfigExtension(val name: String) {
   var preRelease: Boolean? = null
 
   var overwrite: Boolean? = null
+  var tagModifier: Transformer<String, String>? = null
 
-  internal var consumed = false
   internal val assets = LinkedHashSet<String>()
 
   fun assets(vararg assetPaths: String) {
@@ -87,5 +88,9 @@ open class AgrpConfigExtension(val name: String) {
 
   fun overwrite(overwrite: Boolean) {
     this.overwrite = overwrite
+  }
+
+  fun tagModifier(tagModifier: Transformer<String, String>) {
+    this.tagModifier = tagModifier
   }
 }
