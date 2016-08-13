@@ -59,6 +59,12 @@ class AGRPTest {
 
   @Test
   fun vanilla() {
+    val testDir = testProjectDir.newFolder("testDirectory")
+    val innerDir = File(testDir, "innerDir")
+    innerDir.mkdir()
+    val emptyFile = File(testDir, "empty.txt")
+    emptyFile.createNewFile()
+
     val buildScript = File(javaClass.classLoader.getResource("vanilla.groovy").path)
     buildFile.writeBytes(buildScript.readBytes())
 
@@ -77,6 +83,7 @@ class AGRPTest {
 
                     "createDebugGithubRelease",
                     "uploadDebugAsset0",
+                    "uploadDebugAsset1",
                     "uploadDebugAssets",
 
                     "createReleaseGithubRelease",

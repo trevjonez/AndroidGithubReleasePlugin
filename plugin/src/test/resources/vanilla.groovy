@@ -63,6 +63,7 @@ AndroidGithubRelease {
   androidConfigs {
     debug {
       preRelease true
+      assets 'testDirectory'
     }
     release {
       assets 'local.properties'
