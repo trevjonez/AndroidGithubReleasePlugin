@@ -34,7 +34,7 @@ AndroidGithubRelease {
   androidConfigs {
     debug {
       preRelease true
-      tagModifier { it + "-DEBUG" }
+      tagModifier { it + "-DEBUG" } // "1.0.0-DEBUG"
     }
     release {
       draft true
@@ -46,55 +46,58 @@ AndroidGithubRelease {
 
 The `defaultConfig` block as well as the named blocks have the following api options
 
-- apiUrl(String) default: `https://api.github.com`
-- owner(String) **required**
-- repo(String) **required**
+- apiUrl(String) default: `https://api.github.com`, base url for github api
+- owner(String) **required**, username or organization name
+- repo(String) **required**, name of the repository
 - accessToken(String) **required**, key requires `repo` permission
-- tagName(String) **required**
+- tagName(String) **required**, name of new or existing tag
 - targetCommitish(String) default: `master`, see [github api docs](https://developer.github.com/v3/repos/releases/#create-a-release) for details
-- releaseName(String) _optional_
-- releasebody(String) _optional_
+- releaseName(String) _optional_, release title
+- releasebody(String) _optional_, body content of release
 - draft(boolean) default: `false`, flags the github release as a draft
 - preRelease(boolean) default: `false`, flags the github release as a pre-release
 - overwrite(boolean) default: `false`, allows release meta data to be updated, existing binaries must be manually deleted prior to re-upload
-- tagModifier(Transformer<String, String>) _optional_
-- assets(String vararg) _optional_, file or dir names relative to module dir
+- tagModifier(Transformer<String, String>) _optional_, transformer for dynamic tag naming based on combined configuration
+- assets(String vararg) _optional_, file or directory names relative to module directory, Any `asset` that is a directory will be zipped before being uploaded
 
+### Advanced Config
 For builds with flavors the named blocks are applied in a cascading override manner:
 ```groovy
 AndroidGithubRelease {
   defaultConfig {
-    ...
+    tagName "A"
   }
 
   androidConfigs {
     debug {
-      ...
+      tagName "B"
     }
     release {
       ...
     }
     
     red {
-      ...
+      tagName "C"
     }
     blue {
       ...
     }
     
     redDebug {
-      ...
+      tagName "D"
     }
   }
 }
 ```
 
-The cascade order is `flavor(s)`->`type`->`fullVariantName`
+The cascade order is `flavor(s)`->`type`->`fullVariantName`.
+Following this ordering the above configs associated `createRedDebugGithubRelease` task would create a tag named "D", `createRedReleaseGithubRelease` would be "C", `createBlueDebugGithubRelease` would be "B", `createBlueReleaseGithubRelease` would be "A"
+
+In a multi dimensional build the flavors are cascaded in the same order as listed in the variant name.
+
 There are two exceptions to the cascading override:
- 1. `tagModifier` transformers which are applied in the cascade order
- 2. `assets` which are combined into a set
- 
-Any `asset` that is a directory will be zipped before being uploaded
+ 1. `tagModifier` string transformers which are applied in the cascade order
+ 2. `assets` do not override but are combined into a set
 
 Tasks
 -----

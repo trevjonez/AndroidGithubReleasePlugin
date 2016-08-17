@@ -20,7 +20,6 @@ import com.trevjonez.agrp.github.PendingRelease
 import com.trevjonez.agrp.github.ReleaseService
 import com.trevjonez.agrp.okhttp.HeaderInterceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import retrofit2.Retrofit
@@ -43,11 +42,11 @@ abstract class AgrpTask : DefaultTask() {
 
     if (releaseService == null) {
 
-      val loggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
+//      val loggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
+//              .addInterceptor(loggingInterceptor)
 
       val okhttp3 = OkHttpClient.Builder()
               .addInterceptor(HeaderInterceptor("Accept", "application/vnd.github.v3+json"))
-              .addInterceptor(loggingInterceptor)
               .build()
 
       val retrofit = Retrofit.Builder()
