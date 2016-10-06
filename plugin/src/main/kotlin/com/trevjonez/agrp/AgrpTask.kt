@@ -93,7 +93,7 @@ abstract class AgrpTask : DefaultTask() {
     }
 
     private fun tagName(): String {
-        return applyModifiers(cascadeLookup({ it.tagName }, "tagName", validString())!!.toString())
+        return applyModifiers(cascadeLookup({ it.tagName }, "tagName", validString())!!)
     }
 
     private fun targetCommitish(): String? {
@@ -120,7 +120,7 @@ abstract class AgrpTask : DefaultTask() {
         return cascadeLookup({ it.overwrite }, optional = true) ?: false
     }
 
-    private fun validString(): (String) -> Boolean = { it.trim().length > 0 }
+    private fun validString(): (CharSequence) -> Boolean = { it.trim().length > 0 }
 
     private fun <T> cascadeLookup(fieldLookup: (AgrpConfigExtension) -> T?,
                                   fieldName: String = "",
@@ -145,12 +145,12 @@ abstract class AgrpTask : DefaultTask() {
         return result
     }
 
-    private fun applyModifiers(tagName: String): String {
+    private fun applyModifiers(tagName: CharSequence): String {
         var result = tagName
         configs.forEach {
             if (it.tagModifier != null)
-                result = it.tagModifier!!.transform(result.toString()).toString()
+                result = it.tagModifier!!.transform(result.toString())
         }
-        return result
+        return result.toString()
     }
 }
