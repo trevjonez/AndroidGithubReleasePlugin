@@ -31,123 +31,126 @@ import java.util.*
  */
 abstract class AgrpTask : DefaultTask() {
 
-  lateinit var configs: Set<AgrpConfigExtension>
+    lateinit var configs: Set<AgrpConfigExtension>
 
-  var releaseService: ReleaseService? = null
+    var releaseService: ReleaseService? = null
 
-  private var pendingRelease: PendingRelease? = null
+    private var pendingRelease: PendingRelease? = null
 
-  fun releaseService(): ReleaseService {
-    //Cache the releaseService so multiple calls don't re allocate and any upload tasks can use the same instance
+    fun releaseService(): ReleaseService {
+        //Cache the releaseService so multiple calls don't re allocate and any upload tasks can use the same instance
 
-    if (releaseService == null) {
+        if (releaseService == null) {
 
 //      val loggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
 //              .addInterceptor(loggingInterceptor)
 
-      val okhttp3 = OkHttpClient.Builder()
-              .addInterceptor(HeaderInterceptor("Accept", "application/vnd.github.v3+json"))
-              .build()
+            val okhttp3 = OkHttpClient.Builder()
+                    .addInterceptor(HeaderInterceptor("Accept", "application/vnd.github.v3+json"))
+                    .build()
 
-      val retrofit = Retrofit.Builder()
-              .client(okhttp3)
-              .addConverterFactory(MoshiConverterFactory.create())
-              .baseUrl(apiUrl())
-              .build()
+            val retrofit = Retrofit.Builder()
+                    .client(okhttp3)
+                    .addConverterFactory(MoshiConverterFactory.create())
+                    .baseUrl(apiUrl())
+                    .build()
 
-      releaseService = retrofit.create(ReleaseService::class.java)
+            releaseService = retrofit.create(ReleaseService::class.java)
 
+        }
+
+        return releaseService!!
     }
 
-    return releaseService!!
-  }
-
-  private fun apiUrl(): String {
-    return cascadeLookup({ it.apiUrl }, "apiUrl", validString())!!
-  }
-
-  fun owner(): String {
-    return cascadeLookup({ it.owner }, "owner", validString())!!
-  }
-
-  fun repo(): String {
-    return cascadeLookup({ it.repo }, "repo", validString())!!
-  }
-
-  fun accessToken(): String {
-    return cascadeLookup({ it.accessToken }, "accessToken", validString())!!
-  }
-
-  fun pendingRelease(): PendingRelease {
-    if (pendingRelease == null) {
-      pendingRelease = PendingRelease()
-      pendingRelease?.tag_name = tagName()
-      pendingRelease?.target_commitish = targetCommitish()
-      pendingRelease?.name = releaseName()
-      pendingRelease?.body = releasebody()
-      pendingRelease?.draft = draft()
-      pendingRelease?.prerelease = preRelease()
+    private fun apiUrl(): String {
+        return cascadeLookup({ it.apiUrl }, "apiUrl", validString())!!
     }
 
-    return pendingRelease!!
-  }
-
-  private fun tagName(): String {
-    return applyModifiers(cascadeLookup({ it.tagName }, "tagName", validString())!!)
-  }
-
-  private fun targetCommitish(): String? {
-    return cascadeLookup({ it.targetCommitish }, optional = true)
-  }
-
-  private fun releaseName(): String? {
-    return cascadeLookup({ it.releaseName }, optional = true)
-  }
-
-  private fun releasebody(): String? {
-    return cascadeLookup({ it.releasebody }, optional = true)
-  }
-
-  private fun draft(): Boolean? {
-    return cascadeLookup({ it.draft }, optional = true)
-  }
-
-  private fun preRelease(): Boolean? {
-    return cascadeLookup({ it.preRelease }, optional = true)
-  }
-
-  fun overwrite(): Boolean {
-    return cascadeLookup({ it.overwrite }, optional = true) ?: false
-  }
-
-  private fun validString(): (String) -> Boolean = { it.trim().length > 0 }
-
-  private fun <T> cascadeLookup(fieldLookup: (AgrpConfigExtension) -> T?,
-                                fieldName: String = "",
-                                isValid: (T) -> Boolean = { true },
-                                optional: Boolean = false): T? {
-    var result: T? = null
-    configs.forEach {
-      val lookup = fieldLookup.invoke(it)
-      if (lookup != null)
-        result = lookup
+    fun owner(): String {
+        return cascadeLookup({ it.owner }, "owner", validString())!!
     }
 
-    if (!optional && (result == null || !isValid.invoke(result!!)))
-      throw GradleException("Invalid `$fieldName` config value: $result")
+    fun repo(): String {
+        return cascadeLookup({ it.repo }, "repo", validString())!!
+    }
 
-    return result
-  }
+    fun accessToken(): String {
+        return cascadeLookup({ it.accessToken }, "accessToken", validString())!!
+    }
 
-  fun assets(): Set<String> {
-    val result: MutableSet<String> = LinkedHashSet()
-    configs.forEach { result.addAll(it.assets) }
-    return result
-  }
+    fun pendingRelease(): PendingRelease {
+        if (pendingRelease == null) {
+            pendingRelease = PendingRelease()
+            pendingRelease?.tag_name = tagName()
+            pendingRelease?.target_commitish = targetCommitish()
+            pendingRelease?.name = releaseName()
+            pendingRelease?.body = releasebody()
+            pendingRelease?.draft = draft()
+            pendingRelease?.prerelease = preRelease()
+        }
 
-  private fun applyModifiers(tagName: String): String {
-    var result = tagName
-    configs.forEach { result = it.tagModifier?.transform(result)?.toString() ?: result }
-    return result
-  }
+        return pendingRelease!!
+    }
+
+    private fun tagName(): String {
+        return applyModifiers(cascadeLookup({ it.tagName }, "tagName", validString())!!.toString())
+    }
+
+    private fun targetCommitish(): String? {
+        return cascadeLookup({ it.targetCommitish }, optional = true)
+    }
+
+    private fun releaseName(): String? {
+        return cascadeLookup({ it.releaseName }, optional = true)
+    }
+
+    private fun releasebody(): String? {
+        return cascadeLookup({ it.releasebody }, optional = true)
+    }
+
+    private fun draft(): Boolean? {
+        return cascadeLookup({ it.draft }, optional = true)
+    }
+
+    private fun preRelease(): Boolean? {
+        return cascadeLookup({ it.preRelease }, optional = true)
+    }
+
+    fun overwrite(): Boolean {
+        return cascadeLookup({ it.overwrite }, optional = true) ?: false
+    }
+
+    private fun validString(): (String) -> Boolean = { it.trim().length > 0 }
+
+    private fun <T> cascadeLookup(fieldLookup: (AgrpConfigExtension) -> T?,
+                                  fieldName: String = "",
+                                  isValid: (T) -> Boolean = { true },
+                                  optional: Boolean = false): T? {
+        var result: T? = null
+        configs.forEach {
+            val lookup = fieldLookup.invoke(it)
+            if (lookup != null)
+                result = lookup
+        }
+
+        if (!optional && (result == null || !isValid.invoke(result!!)))
+            throw GradleException("Invalid `$fieldName` config value: $result")
+
+        return result
+    }
+
+    fun assets(): Set<String> {
+        val result: MutableSet<String> = LinkedHashSet()
+        configs.forEach { result.addAll(it.assets) }
+        return result
+    }
+
+    private fun applyModifiers(tagName: String): String {
+        var result = tagName
+        configs.forEach {
+            if (it.tagModifier != null)
+                result = it.tagModifier!!.transform(result.toString()).toString()
+        }
+        return result
+    }
 }
