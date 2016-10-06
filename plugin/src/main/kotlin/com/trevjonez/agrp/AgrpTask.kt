@@ -147,7 +147,7 @@ abstract class AgrpTask : DefaultTask() {
 
   private fun applyModifiers(tagName: String): String {
     var result = tagName
-    configs.forEach { result = it.tagModifier?.transform(result) ?: result }
+    configs.forEach { result = it.tagModifier?.transform(result)?.toString() ?: result }
     return result
   }
 }
