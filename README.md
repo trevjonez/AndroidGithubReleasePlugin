@@ -13,7 +13,7 @@ buildscript {
         maven { url "https://jitpack.io" }
     }
     dependencies {
-        classpath 'com.github.trevjonez:AndroidGithubReleasePlugin:1.0.0'
+        classpath 'com.github.trevjonez:AndroidGithubReleasePlugin:1.0.1'
     }
 }
 ```
