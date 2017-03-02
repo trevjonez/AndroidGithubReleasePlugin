@@ -26,8 +26,8 @@ gradlePlugin {
   }
 }
 
-def okhttp3_version = '3.4.1'
-def retrofit2_version = '2.1.0'
+def okhttp3_version = '3.6.0'
+def retrofit2_version = '2.2.0'
 
 dependencies {
   compile gradleApi()
@@ -40,7 +40,7 @@ dependencies {
   compile group: 'com.squareup.retrofit2', name: 'retrofit', version: retrofit2_version
   compile group: 'com.squareup.retrofit2', name: 'converter-moshi', version: retrofit2_version
 
-  compile group: 'com.android.tools.build', name: 'gradle', version: '2.1.2'
+  compile group: 'com.android.tools.build', name: 'gradle', version: '2.3.0'
 
   testCompile group: 'junit', name: 'junit', version: '4.12'
   testCompile group: 'org.assertj', name: 'assertj-core', version: '3.5.2'

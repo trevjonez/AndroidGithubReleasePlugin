@@ -49,6 +49,7 @@ open class CreateReleaseTask : AgrpTask() {
     val postPatchResponse = postPatchCall.execute()
 
     if (!postPatchResponse.isSuccessful) {
+      project.logger.info("Post/Patch api call failed with code: ${postPatchResponse.code()}")
       throw GradleException("The ${postPatchCall.request().method()} github api call failed:\n${postPatchResponse.errorBody().string()}\n")
     }
 

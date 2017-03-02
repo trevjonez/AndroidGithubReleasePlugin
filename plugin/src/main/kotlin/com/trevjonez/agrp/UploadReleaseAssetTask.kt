@@ -80,6 +80,8 @@ open class UploadReleaseAssetTask : DefaultTask() {
     val uploadResult = uploadCall.execute()
 
     if (!uploadResult.isSuccessful) {
+      project.logger.info("Outbound request URL on failed asset upload was: ${createTask.response.upload_url}")
+      project.logger.info("Upload result failed with code: ${uploadResult.code()}")
       throw GradleException("Asset \"${assetFile.name}\" upload failed: ${uploadResult.errorBody().string()}")
     }
 
