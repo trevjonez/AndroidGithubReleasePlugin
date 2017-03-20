@@ -28,11 +28,12 @@ import java.util.*
 /**
  * @author TrevJonez
  */
+@Suppress("unused")
 class AGRP : Plugin<Project> {
   lateinit var baseExtension: AgrpBaseExtension
 
   companion object {
-    val AGRP_GROUP = "Android Github Release Plugin"
+    const val AGRP_GROUP = "Android Github Release Plugin"
   }
 
   override fun apply(project: Project) {
@@ -61,49 +62,45 @@ class AGRP : Plugin<Project> {
       project.logger.info("Creating tasks for variant: \"${variant.name}\"")
 
       val configs = gatherConfigExtensions(project, variant)
-
-      val createTaskOptions = LinkedHashMap<String, Any>()
-      createTaskOptions.put("name", "create${variant.name.capitalize()}GithubRelease")
-      createTaskOptions.put("type", CreateReleaseTask::class.java)
-      createTaskOptions.put("group", AGRP_GROUP)
-      createTaskOptions.put("description", "Create a release/tag on github for the \"${variant.name}\" build variant")
-
-      //The system creates the instance here so we have to do the DI immediately following instantiation
-      val createReleaseTask = project.tasks.create(createTaskOptions) as CreateReleaseTask
-      createReleaseTask.configs = configs
-
       val variantTasks = LinkedList<Task>()
-      variantTasks.add(createReleaseTask)
 
-      val assets = createReleaseTask.assets()
-      assets.forEach {
-        val asset = File(project.projectDir.path + File.separatorChar + it)
-        project.logger.info("Asset path: ${asset.absolutePath}")
-
-        val uploadAssetOptions = LinkedHashMap<String, Any>()
-        uploadAssetOptions.put("name", "upload${variant.name.capitalize()}Asset${assets.indexOf(it)}")
-        uploadAssetOptions.put("type", UploadReleaseAssetTask::class.java)
-        uploadAssetOptions.put("group", AGRP_GROUP)
-        uploadAssetOptions.put("description", "Upload the asset \"${asset.name}\" to a release on github for the \"${variant.name}\" build variant")
-        uploadAssetOptions.put("dependsOn", listOfNotNull(createReleaseTask.name))
-
-        val uploadAssetTask = project.tasks.create(uploadAssetOptions) as UploadReleaseAssetTask
-        uploadAssetTask.createTask = createReleaseTask
-        uploadAssetTask.assetFile = asset
-
-        variantTasks.add(uploadAssetTask)
+      //The system creates the instance so we have to do the DI immediately following instantiation in the apply block
+      project.createTask(
+              type = CreateReleaseTask::class.java,
+              name = "create${variant.name.capitalize()}GithubRelease",
+              description = "Create a release/tag on github for the \"${variant.name}\" build variant").apply createTask@ {
+        this.configs = configs
+        variantTasks.add(this)
+        for (it in assets) {
+          project.createTask(
+                  type = UploadReleaseAssetTask::class.java,
+                  name = "upload${variant.name.capitalize()}Asset${assets.indexOf(it)}",
+                  description = "Upload the asset \"$it\" to a release on github for the \"${variant.name}\" build variant",
+                  dependsOn = listOfNotNull(project.task(name))).apply {
+            createTask = this@createTask
+            assetFile = File(project.projectDir.path + File.separatorChar + it)
+            project.logger.info("Asset path: ${assetFile.absolutePath}")
+            variantTasks.add(this)
+          }
+        }
       }
 
-      val uploadAssetsOptions = LinkedHashMap<String, Any>()
-      uploadAssetsOptions.put("name", "upload${variant.name.capitalize()}Assets")
-      uploadAssetsOptions.put("type", DefaultTask::class.java)
-      uploadAssetsOptions.put("group", AGRP_GROUP)
-      uploadAssetsOptions.put("description", "Upload all assets to a release on github for the \"${variant.name}\" build variant")
-      uploadAssetsOptions.put("dependsOn", variantTasks)
-
-      project.tasks.create(uploadAssetsOptions)
+      project.createTask(
+              type = DefaultTask::class.java,
+              name = "upload${variant.name.capitalize()}Assets",
+              description = "Upload all assets to a release on github for the \"${variant.name}\" build variant",
+              dependsOn = variantTasks)
     }
   }
+
+  private fun <T : DefaultTask> Project.createTask(type: Class<T>, name: String, group: String = AGRP_GROUP, description: String? = null, dependsOn: List<Task>? = null) =
+          type.cast(project.tasks.create(LinkedHashMap<String, Any>().apply {
+            put("name", name)
+            put("type", type)
+            put("group", group)
+            description?.let { put("description", it) }
+            dependsOn?.let { put("dependsOn", it) }
+          }))
 
   private fun gatherConfigExtensions(project: Project, variant: BaseVariant): Set<AgrpConfigExtension> {
     val configs = LinkedHashSet<AgrpConfigExtension>()

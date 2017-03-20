@@ -139,10 +139,10 @@ abstract class AgrpTask : DefaultTask() {
         return result
     }
 
-    fun assets(): Set<String> {
-        val result: MutableSet<String> = LinkedHashSet()
-        configs.forEach { result.addAll(it.assets) }
-        return result
+    val assets: Set<String> by lazy {
+        LinkedHashSet<String>().apply {
+            configs.forEach { addAll(it.assets) }
+        }
     }
 
     private fun applyModifiers(tagName: CharSequence): String {
