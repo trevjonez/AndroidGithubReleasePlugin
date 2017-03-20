@@ -102,22 +102,18 @@ class AGRP : Plugin<Project> {
             dependsOn?.let { put("dependsOn", it) }
           }))
 
-  private fun gatherConfigExtensions(project: Project, variant: BaseVariant): Set<AgrpConfigExtension> {
-    val configs = LinkedHashSet<AgrpConfigExtension>()
-
-    configs.add((baseExtension as ExtensionAware).extensions.getByName("defaultConfig") as AgrpConfigExtension)
+  private fun gatherConfigExtensions(project: Project, variant: BaseVariant): Set<AgrpConfigExtension> = LinkedHashSet<AgrpConfigExtension>().apply {
+    add((baseExtension as ExtensionAware).extensions.getByName("defaultConfig") as AgrpConfigExtension)
 
     //Flavors in order
     variant.productFlavors.forEach {
-      configs.addOrLog({ baseExtension.androidConfigs.getByName(it.name) }, "No AGRP config with name \"${it.name}\"", project)
+      addOrLog({ baseExtension.androidConfigs.getByName(it.name) }, "No AGRP config with name \"${it.name}\"", project)
     }
 
     //Debug / Release
-    configs.addOrLog({ baseExtension.androidConfigs.getByName(variant.buildType.name) }, "No AGRP config with name \"${variant.buildType.name}\"", project)
+    addOrLog({ baseExtension.androidConfigs.getByName(variant.buildType.name) }, "No AGRP config with name \"${variant.buildType.name}\"", project)
 
     //Full variant name
-    configs.addOrLog({ baseExtension.androidConfigs.getByName(variant.name) }, "No AGRP config with name \"${variant.name}\"", project)
-
-    return configs
+    addOrLog({ baseExtension.androidConfigs.getByName(variant.name) }, "No AGRP config with name \"${variant.name}\"", project)
   }
 }
