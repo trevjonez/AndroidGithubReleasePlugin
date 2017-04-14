@@ -123,3 +123,8 @@ License
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+Running project tests
+-------
+In order to run tests you must first create a repository to test against on github and update the three test cases configs to point at that test repo.
+From that point you create a `local.properties` file in `src/test/resources` and add the `GITHUB_API_TOKEN` as well as the normal `sdk.dir` property. 
