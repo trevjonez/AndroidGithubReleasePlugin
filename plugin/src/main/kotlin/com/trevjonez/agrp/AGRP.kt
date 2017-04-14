@@ -76,7 +76,7 @@ class AGRP : Plugin<Project> {
                   type = UploadReleaseAssetTask::class.java,
                   name = "upload${variant.name.capitalize()}Asset${assets.indexOf(it)}",
                   description = "Upload the asset \"$it\" to a release on github for the \"${variant.name}\" build variant",
-                  dependsOn = listOfNotNull(project.task(name))).apply {
+                  dependsOn = listOfNotNull(this)).apply {
             createTask = this@createTask
             assetFile = File(project.projectDir.path + File.separatorChar + it)
             project.logger.info("Asset path: ${assetFile.absolutePath}")

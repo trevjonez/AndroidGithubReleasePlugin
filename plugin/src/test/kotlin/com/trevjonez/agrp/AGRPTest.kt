@@ -69,7 +69,7 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("2.13")
+            .withGradleVersion("3.5")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
             .withArguments("tasks", "uploadDebugAssets")
@@ -98,7 +98,7 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("2.13")
+            .withGradleVersion("3.5")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
             .withArguments("tasks", "uploadStrawberryDebugAssets")
@@ -142,7 +142,7 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("2.13")
+            .withGradleVersion("3.5")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
             .withArguments("tasks", "uploadFudgePecanReleaseAssets")

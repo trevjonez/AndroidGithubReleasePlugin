@@ -15,7 +15,7 @@
  */
 
 buildscript {
-  ext.kotlin_version = '1.1.0'
+  ext.kotlin_version = '1.1.1'
   repositories {
     jcenter()
   }
@@ -35,6 +35,6 @@ task clean(type: Delete) {
 }
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '3.4'
+  gradleVersion = '3.5'
   distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }

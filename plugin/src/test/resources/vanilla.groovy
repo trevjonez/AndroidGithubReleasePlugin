@@ -19,7 +19,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath group: 'com.android.tools.build', name: 'gradle', version: '2.1.2'
+    classpath group: 'com.android.tools.build', name: 'gradle', version: '2.3.1'
   }
 }
 
@@ -30,13 +30,13 @@ plugins {
 apply plugin: 'com.android.application'
 
 android {
-  buildToolsVersion '24.0.1'
-  compileSdkVersion 24
+  buildToolsVersion '25.0.2'
+  compileSdkVersion 25
 
   defaultConfig {
     applicationId 'com.test.script'
     minSdkVersion 16
-    targetSdkVersion 24
+    targetSdkVersion 25
     versionCode 1
     versionName '1.0.0'
   }
@@ -52,7 +52,7 @@ properties.load(project.file('local.properties').newDataInputStream())
 AndroidGithubRelease {
 
   defaultConfig {
-    tagName "0.2.0"
+    tagName "0.3.0"
     owner "trevjonez"
     repo "PluginTesting"
     accessToken properties.getProperty("GITHUB_API_TOKEN")
