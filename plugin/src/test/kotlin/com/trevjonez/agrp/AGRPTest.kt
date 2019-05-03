@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,9 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
-/**
- * @author TrevJonez
- */
 class AGRPTest {
-  @Rule @JvmField var testProjectDir = TemporaryFolder()
+  @get:Rule
+  var testProjectDir = TemporaryFolder()
 
   lateinit var buildFile: File
   lateinit var propertiesFile: File
@@ -69,7 +67,6 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("3.5")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
             .withArguments("tasks", "uploadDebugAssets")
@@ -98,7 +95,6 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("3.5")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
             .withArguments("tasks", "uploadStrawberryDebugAssets")
@@ -142,7 +138,6 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("3.5")
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
             .withArguments("tasks", "uploadFudgePecanReleaseAssets")

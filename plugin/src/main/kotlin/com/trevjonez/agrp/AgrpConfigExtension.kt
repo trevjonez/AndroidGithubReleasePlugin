@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,15 @@ package com.trevjonez.agrp
 import org.gradle.api.Transformer
 import java.util.*
 
-/**
- * @author TrevJonez
- */
 @Suppress("unused")
 open class AgrpConfigExtension(val name: String) {
 
   var apiUrl: String? = null
-  var owner: String? = null
-  var repo: String? = null
-  var accessToken: String? = null
-  var tagName: String? = null
+
+  lateinit var owner: String
+  lateinit var repo: String
+  lateinit var accessToken: String
+  lateinit var tagName: String
 
   var targetCommitish: String? = null
   var releaseName: String? = null

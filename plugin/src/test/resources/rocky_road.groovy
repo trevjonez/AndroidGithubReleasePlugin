@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath group: 'com.android.tools.build', name: 'gradle', version: '2.3.1'
+    classpath group: 'com.android.tools.build', name: 'gradle', version: '3.4.0'
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package com.trevjonez.agrp.okhttp
+package com.trevjonez.agrp
 
-import okhttp3.Interceptor
-import okhttp3.Response
+import com.android.build.gradle.LibraryExtension
 
-/**
- * Add a custom header via interceptor
- *
- * @author TrevJonez
- */
-class HeaderInterceptor(val name: String, val value: String) : Interceptor {
-  override fun intercept(chain: Interceptor.Chain?): Response {
-    val request = chain!!
-            .request()!!
-            .newBuilder()!!
-            .header(name, value)
-            .build()
-
-    return chain.proceed(request)
+class AgrpLibraryPlugin : AbsAgrpPlugin() {
+  override fun registerTasksForVariants() {
+    project.extensions.getByType(LibraryExtension::class.java)
+        .libraryVariants.all(::registerTasksForVariant)
   }
 }
