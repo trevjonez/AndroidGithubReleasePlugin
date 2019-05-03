@@ -19,7 +19,7 @@ package com.trevjonez.agrp
 import okhttp3.RequestBody
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
@@ -37,7 +37,7 @@ import java.util.zip.ZipOutputStream
 open class UploadReleaseAssetTask : AgrpTask() {
   lateinit var createTask: TaskProvider<CreateReleaseTask>
 
-  @InputFile
+  @Input
   val assetFile: RegularFileProperty = project.objects.fileProperty()
 
   @TaskAction
@@ -68,17 +68,17 @@ open class UploadReleaseAssetTask : AgrpTask() {
       (URLConnection.getFileNameMap().getContentTypeFor(rawFile.name) ?: "application/octet-stream") to rawFile
     }
 
-    val uploadUrl = createTask.get().response.upload_url.replace("{?name,label}", "")
+    val uploadUrl = createTask.get().response.upload_url!!.replace("{?name,label}", "")
 
     val uploadResult = config.releaseApi
-        .uploadAsset(
-            uploadUrl,
-            uploadFile.name,
-            "token ${config.accessToken}",
-            contentType,
-            RequestBody.create(null, uploadFile)
-        )
-        .execute()
+      .uploadAsset(
+        uploadUrl,
+        uploadFile.name,
+        "token ${config.accessToken}",
+        contentType,
+        RequestBody.create(null, uploadFile)
+      )
+      .execute()
 
     if (!uploadResult.isSuccessful) {
       project.logger.lifecycle("Outbound request URL on failed asset upload was: `$uploadUrl`")

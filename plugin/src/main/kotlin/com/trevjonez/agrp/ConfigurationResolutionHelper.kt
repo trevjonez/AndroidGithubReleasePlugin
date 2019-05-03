@@ -22,17 +22,17 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 class ConfigurationResolutionHelper(
-    val project: Project,
-    val configs: Set<AgrpConfigExtension>
+  val project: Project,
+  val configs: Set<AgrpConfigExtension>
 ) {
   val createRequest: Release.Request by lazy {
     Release.Request(
-        tagName,
-        targetCommitish,
-        releaseName,
-        releasebody,
-        draft,
-        preRelease)
+      tagName,
+      targetCommitish,
+      releaseName,
+      releasebody,
+      draft,
+      preRelease)
   }
 
   val releaseApi: Release.Api
@@ -44,9 +44,9 @@ class ConfigurationResolutionHelper(
         defaultRetrofit()
       } else {
         defaultRetrofit()
-            .newBuilder()
-            .baseUrl(url)
-            .build()
+          .newBuilder()
+          .baseUrl(url)
+          .build()
       }
 
       return retrofit.create(Release.Api::class.java).also {
@@ -72,11 +72,11 @@ class ConfigurationResolutionHelper(
 
   val tagName: String by lazy {
     applyModifiers(
-        cascadeLookup(
-            { it.tagName },
-            "tagName",
-            CharSequence::isNotBlank
-        )
+      cascadeLookup(
+        { it.tagName },
+        "tagName",
+        CharSequence::isNotBlank
+      )
     )
   }
 
@@ -105,9 +105,9 @@ class ConfigurationResolutionHelper(
   }
 
   private fun <T : Any> cascadeLookup(
-      fieldLookup: (AgrpConfigExtension) -> T?,
-      fieldName: String,
-      isValid: (T) -> Boolean = { true }
+    fieldLookup: (AgrpConfigExtension) -> T?,
+    fieldName: String,
+    isValid: (T) -> Boolean = { true }
   ): T {
     val result = configs.mapNotNull { fieldLookup.invoke(it) }.firstOrNull()
 
@@ -118,9 +118,9 @@ class ConfigurationResolutionHelper(
   }
 
   private fun <T : Any> cascadeOptionalLookup(
-      fieldLookup: (AgrpConfigExtension) -> T?,
-      fieldName: String,
-      isValid: (T) -> Boolean = { true }
+    fieldLookup: (AgrpConfigExtension) -> T?,
+    fieldName: String,
+    isValid: (T) -> Boolean = { true }
   ): T? {
     val result = configs.mapNotNull { fieldLookup.invoke(it) }.firstOrNull()
 

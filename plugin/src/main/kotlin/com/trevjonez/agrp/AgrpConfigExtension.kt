@@ -24,10 +24,10 @@ open class AgrpConfigExtension(val name: String) {
 
   var apiUrl: String? = null
 
-  lateinit var owner: String
-  lateinit var repo: String
-  lateinit var accessToken: String
-  lateinit var tagName: String
+  var owner: String? = null
+  var repo: String? = null
+  var accessToken: String? = null
+  var tagName: String? = null
 
   var targetCommitish: String? = null
   var releaseName: String? = null

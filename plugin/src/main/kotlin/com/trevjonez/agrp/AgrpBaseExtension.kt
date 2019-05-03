@@ -22,11 +22,13 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 
 open class AgrpBaseExtension(project: Project) {
-  val androidConfigs: NamedDomainObjectContainer<AgrpConfigExtension> = project.container(AgrpConfigExtension::class.java)
+  val androidConfigs: NamedDomainObjectContainer<AgrpConfigExtension> =
+      project.container(AgrpConfigExtension::class.java)
 
   init {
     @Suppress("LeakingThis")
-    val defaultConfig = (this as ExtensionAware).extensions.create("defaultConfig", AgrpConfigExtension::class.java, "defaultConfig")
+    val defaultConfig =
+        (this as ExtensionAware).extensions.create("defaultConfig", AgrpConfigExtension::class.java, "defaultConfig")
     defaultConfig.apiUrl = "https://api.github.com"
   }
 

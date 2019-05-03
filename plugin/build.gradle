@@ -27,11 +27,13 @@ gradlePlugin {
   }
 }
 
+tasks.named("test").configure {
+  systemProperty("org.gradle.testkit.debug", false)
+}
+
 dependencies {
   api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-
-  api gradleApi()
-  api "com.trevjonez.github:releases:0.1.1"
+  api "com.trevjonez.github:releases:0.1.6"
   api "com.android.tools.build:gradle:$agpVersion"
 
   testImplementation 'junit:junit:4.12'
@@ -39,6 +41,6 @@ dependencies {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-  classifier = 'sources'
+  getArchiveClassifier().set('sources')
   from sourceSets.main.allSource
 }

@@ -51,8 +51,8 @@ class AGRPTest {
 
     val baseExtension = project.extensions.findByName("AndroidGithubRelease") as ExtensionAware
     assertThat(baseExtension)
-            .isNotNull()
-            .isInstanceOf(AgrpBaseExtension::class.java)
+      .isNotNull()
+      .isInstanceOf(AgrpBaseExtension::class.java)
   }
 
   @Test
@@ -67,26 +67,26 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments("tasks", "uploadDebugAssets")
-            .withDebug(true)
-            .build()
+      .withProjectDir(testProjectDir.root)
+      .withPluginClasspath()
+      .withArguments("tasks", "uploadDebugAssets", "--stacktrace")
+      .forwardOutput()
+      .build()
 
     print(buildResult.output)
 
     assertThat(buildResult.output)
-            .contains("Android Github Release Plugin",
+      .contains("Android Github Release Plugin",
 
-                    "createDebugGithubRelease",
-                    "uploadDebugAsset0",
-                    "uploadDebugAsset1",
-                    "uploadDebugAssets",
+        "createDebugGithubRelease",
+        "uploadDebugAsset0",
+        "uploadDebugAsset1",
+        "uploadDebugAssets",
 
-                    "createReleaseGithubRelease",
-                    "uploadReleaseAsset0",
-                    "uploadReleaseAsset1",
-                    "uploadReleaseAssets")
+        "createReleaseGithubRelease",
+        "uploadReleaseAsset0",
+        "uploadReleaseAsset1",
+        "uploadReleaseAssets")
   }
 
   @Test
@@ -95,41 +95,41 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments("tasks", "uploadStrawberryDebugAssets")
-            .withDebug(true)
-            .build()
+      .withProjectDir(testProjectDir.root)
+      .withPluginClasspath()
+      .withArguments("tasks", "uploadStrawberryDebugAssets", "--stacktrace")
+      .forwardOutput()
+      .build()
 
     print(buildResult.output)
 
     assertThat(buildResult.output)
-            .contains("Android Github Release Plugin",
+      .contains("Android Github Release Plugin",
 
-                    "createVanillaDebugGithubRelease",
-                    "createChocolateDebugGithubRelease",
-                    "createStrawberryDebugGithubRelease",
+        "createVanillaDebugGithubRelease",
+        "createChocolateDebugGithubRelease",
+        "createStrawberryDebugGithubRelease",
 
-                    "createVanillaReleaseGithubRelease",
-                    "createChocolateReleaseGithubRelease",
-                    "createStrawberryReleaseGithubRelease",
+        "createVanillaReleaseGithubRelease",
+        "createChocolateReleaseGithubRelease",
+        "createStrawberryReleaseGithubRelease",
 
-                    "uploadVanillaDebugAsset0",
-                    "uploadVanillaDebugAsset1",
-                    "uploadVanillaDebugAssets",
+        "uploadVanillaDebugAsset0",
+        "uploadVanillaDebugAsset1",
+        "uploadVanillaDebugAssets",
 
-                    "uploadChocolateDebugAsset0",
-                    "uploadChocolateDebugAssets",
+        "uploadChocolateDebugAsset0",
+        "uploadChocolateDebugAssets",
 
-                    "uploadStrawberryDebugAsset0",
-                    "uploadStrawberryDebugAssets",
+        "uploadStrawberryDebugAsset0",
+        "uploadStrawberryDebugAssets",
 
-                    "uploadVanillaReleaseAsset0",
-                    "uploadVanillaReleaseAssets",
+        "uploadVanillaReleaseAsset0",
+        "uploadVanillaReleaseAssets",
 
-                    "uploadChocolateReleaseAssets",
+        "uploadChocolateReleaseAssets",
 
-                    "uploadStrawberryReleaseAssets")
+        "uploadStrawberryReleaseAssets")
   }
 
   @Test
@@ -138,39 +138,39 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments("tasks", "uploadFudgePecanReleaseAssets")
-            .withDebug(true)
-            .build()
+      .withProjectDir(testProjectDir.root)
+      .withPluginClasspath()
+      .withArguments("tasks", "uploadFudgePecanReleaseAssets", "--stacktrace")
+      .forwardOutput()
+      .build()
 
     print(buildResult.output)
 
     assertThat(buildResult.output)
-            .contains("Android Github Release Plugin",
+      .contains("Android Github Release Plugin",
 
-                    "createChocolatePeanutDebugGithubRelease",
-                    "uploadChocolatePeanutDebugAsset0",
-                    "uploadChocolatePeanutDebugAssets",
+        "createChocolatePeanutDebugGithubRelease",
+        "uploadChocolatePeanutDebugAsset0",
+        "uploadChocolatePeanutDebugAssets",
 
-                    "createChocolatePecanDebugGithubRelease",
-                    "uploadChocolatePecanDebugAsset0",
-                    "uploadChocolatePecanDebugAssets",
+        "createChocolatePecanDebugGithubRelease",
+        "uploadChocolatePecanDebugAsset0",
+        "uploadChocolatePecanDebugAssets",
 
-                    "createChocolatePeanutReleaseGithubRelease",
-                    "uploadChocolatePeanutReleaseAsset0",
-                    "uploadChocolatePeanutReleaseAssets",
+        "createChocolatePeanutReleaseGithubRelease",
+        "uploadChocolatePeanutReleaseAsset0",
+        "uploadChocolatePeanutReleaseAssets",
 
-                    "createChocolatePecanReleaseGithubRelease",
-                    "uploadChocolatePecanReleaseAsset0",
-                    "uploadChocolatePecanReleaseAssets",
+        "createChocolatePecanReleaseGithubRelease",
+        "uploadChocolatePecanReleaseAsset0",
+        "uploadChocolatePecanReleaseAssets",
 
-                    "createFudgePecanDebugGithubRelease",
-                    "uploadFudgePecanDebugAsset0",
-                    "uploadFudgePecanDebugAssets",
+        "createFudgePecanDebugGithubRelease",
+        "uploadFudgePecanDebugAsset0",
+        "uploadFudgePecanDebugAssets",
 
-                    "createFudgePecanReleaseGithubRelease",
-                    "uploadFudgePecanReleaseAsset0",
-                    "uploadFudgePecanReleaseAssets")
+        "createFudgePecanReleaseGithubRelease",
+        "uploadFudgePecanReleaseAsset0",
+        "uploadFudgePecanReleaseAssets")
   }
 }

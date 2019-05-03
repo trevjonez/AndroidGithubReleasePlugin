@@ -28,10 +28,10 @@ open class CreateReleaseTask : AgrpTask() {
   fun createRelease() {
 
     val releaseLookupResponse = config.releaseApi.byTag(
-        config.owner,
-        config.repo,
-        config.createRequest.tag_name,
-        "token ${config.accessToken}"
+      config.owner,
+      config.repo,
+      config.createRequest.tag_name,
+      "token ${config.accessToken}"
     ).execute()
 
     if (releaseLookupResponse.isSuccessful && !config.overwrite) {
@@ -39,20 +39,20 @@ open class CreateReleaseTask : AgrpTask() {
           "You can configure this task to overwrite the release @ that tag name with `overwrite = true`\n" +
           releaseLookupResponse.body().toString())
     }
-    val existingRelease = releaseLookupResponse.body()!!
+    val existingRelease = releaseLookupResponse.body()
     val postPatchCall = if (releaseLookupResponse.isSuccessful) {
       config.releaseApi.edit(
-          config.owner,
-          config.repo,
-          existingRelease.id,
-          "token ${config.accessToken}",
-          config.createRequest)
+        config.owner,
+        config.repo,
+        existingRelease!!.id,
+        "token ${config.accessToken}",
+        config.createRequest)
     } else {
       config.releaseApi.create(
-          config.owner,
-          config.repo,
-          "token ${config.accessToken}",
-          config.createRequest
+        config.owner,
+        config.repo,
+        "token ${config.accessToken}",
+        config.createRequest
       )
     }
 

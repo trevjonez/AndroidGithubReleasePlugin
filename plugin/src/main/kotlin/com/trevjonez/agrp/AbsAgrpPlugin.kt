@@ -38,17 +38,20 @@ abstract class AbsAgrpPlugin : Plugin<Project> {
   override fun apply(target: Project) {
     project = target
     createExtension()
+//    project.afterEvaluate {
+    registerTasksForVariants()
+//    }
   }
 
   protected fun registerTasksForVariant(variant: BaseVariant) {
     val configHelper = ConfigurationResolutionHelper(
-        project,
-        gatherConfigExtensions(project, variant)
+      project,
+      gatherConfigExtensions(project, variant)
     )
 
     val createTask = project.tasks.register(
-        "create${variant.name.capitalize()}GithubRelease",
-        CreateReleaseTask::class.java
+      "create${variant.name.capitalize()}GithubRelease",
+      CreateReleaseTask::class.java
     ) {
       it.group = AGRP_GROUP
       it.description = "Create a release/tag on github for the \"${variant.name}\" build variant"
@@ -56,19 +59,19 @@ abstract class AbsAgrpPlugin : Plugin<Project> {
     }
 
     val variantAssetTasks = configHelper.configs
-        .flatMap { it.assets }
-        .mapIndexed { index, asset ->
-          project.tasks.register(
-              "upload${variant.name.capitalize()}Asset$index",
-              UploadReleaseAssetTask::class.java
-          ) {
-            it.group = AGRP_GROUP
-            it.description = "Upload the asset \"$it\" to a release on github for the \"${variant.name}\" build variant"
-            it.createTask = createTask
-            it.assetFile.set(project.file(asset))
-            it.config = configHelper
-          }
-        }
+      .flatMap { it.assets }
+      .mapIndexed { index, asset ->
+        project.tasks.register(
+          "upload${variant.name.capitalize()}Asset$index",
+          UploadReleaseAssetTask::class.java
+        ) {
+          it.group = AGRP_GROUP
+          it.description = "Upload the asset \"$it\" to a release on github for the \"${variant.name}\" build variant"
+          it.createTask = createTask
+          it.assetFile.set(project.file(asset))
+          it.config = configHelper
+        }.dependsOn(createTask)
+      }
 
     project.tasks.register("upload${variant.name.capitalize()}Assets", DefaultTask::class.java) {
       it.group = AGRP_GROUP
@@ -83,19 +86,19 @@ abstract class AbsAgrpPlugin : Plugin<Project> {
         //Flavors in order
         variant.productFlavors.forEach {
           addOrLog({ baseExtension.androidConfigs.getByName(it.name) },
-              "No AndroidGithubReleasePlugin config with name \"${it.name}\"",
-              project)
+            "No AndroidGithubReleasePlugin config with name \"${it.name}\"",
+            project)
         }
 
         //Debug / Release
         addOrLog({ baseExtension.androidConfigs.getByName(variant.buildType.name) },
-            "No AndroidGithubReleasePlugin config with name \"${variant.buildType.name}\"",
-            project)
+          "No AndroidGithubReleasePlugin config with name \"${variant.buildType.name}\"",
+          project)
 
         //Full variant name
         addOrLog({ baseExtension.androidConfigs.getByName(variant.name) },
-            "No AndroidGithubReleasePlugin config with name \"${variant.name}\"",
-            project)
+          "No AndroidGithubReleasePlugin config with name \"${variant.name}\"",
+          project)
       }
 
   private fun <T> MutableSet<T>.addOrLog(action: () -> T, message: String, project: Project) {

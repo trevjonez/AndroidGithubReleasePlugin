@@ -21,6 +21,8 @@ import com.android.build.gradle.LibraryExtension
 class AgrpLibraryPlugin : AbsAgrpPlugin() {
   override fun registerTasksForVariants() {
     project.extensions.getByType(LibraryExtension::class.java)
-        .libraryVariants.all(::registerTasksForVariant)
+      .libraryVariants.all { variant ->
+      project.afterEvaluate { registerTasksForVariant(variant) }
+    }
   }
 }

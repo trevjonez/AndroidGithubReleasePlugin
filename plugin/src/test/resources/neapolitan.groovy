@@ -17,6 +17,7 @@
 buildscript {
   repositories {
     jcenter()
+    google()
   }
   dependencies {
     classpath group: 'com.android.tools.build', name: 'gradle', version: '3.4.0'
@@ -30,32 +31,33 @@ plugins {
 apply plugin: 'com.android.application'
 
 android {
-  buildToolsVersion '25.0.2'
-  compileSdkVersion 25
+  compileSdkVersion 28
 
   defaultConfig {
     applicationId 'com.test.script'
-    minSdkVersion 16
-    targetSdkVersion 25
+    minSdkVersion 23
+    targetSdkVersion 28
     versionCode 1
     versionName '1.0.0'
   }
 
+  flavorDimensions "taste"
   productFlavors {
     vanilla {
-
+      dimension "taste"
     }
     chocolate {
-
+      dimension "taste"
     }
     strawberry {
-
+      dimension "taste"
     }
   }
 }
 
 repositories {
   jcenter()
+  google()
 }
 
 Properties properties = new Properties()

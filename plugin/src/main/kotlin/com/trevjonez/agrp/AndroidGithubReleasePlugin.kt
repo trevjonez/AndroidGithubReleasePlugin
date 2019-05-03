@@ -32,7 +32,7 @@ class AndroidGithubReleasePlugin : Plugin<Project> {
     }
 
     project.afterEvaluate {
-      project.extensions.findByType(AgrpBaseExtension::class.java)
+      project.extensions.findByName("AndroidGithubRelease")
           ?: project.tasks.find { it is AgrpTask }
           ?: project.missingPlugin<AndroidBasePlugin>(genericExceptionMessage)
     }
@@ -40,12 +40,12 @@ class AndroidGithubReleasePlugin : Plugin<Project> {
 
   private val genericExceptionMessage =
       """If you believe this is an issue or missing feature, please consider opening an issue on github.
-      |https://github.com/trevjonez/composer-gradle-plugin
+      |https://github.com/trevjonez/AndroidGithubReleasePlugin
       |""".trimMargin()
 
   private inline fun <reified T : Plugin<Project>> Project.missingPlugin(msg: String = ""): Nothing {
     throw MissingPluginException(
-        """Failed to configure ${AndroidGithubReleasePlugin::class.java.name} plugin on project: $path
+      """Failed to configure ${AndroidGithubReleasePlugin::class.java.name} plugin on project: $path
           |  Expected plugin: `${T::class.java.name}` was not applied.
           |  $msg""".trimMargin()
     )
