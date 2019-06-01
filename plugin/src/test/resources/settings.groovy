@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.trevjonez.agrp
-
-import com.android.build.gradle.AppExtension
-
-abstract class AgrpApplicationPlugin : AbsAgrpPlugin() {
-  override fun registerTasks() {
-    target.extensions.getByType(AppExtension::class.java)
-      .applicationVariants
-      .all { variant ->
-        target.afterEvaluate { registerTasksForVariant(variant) }
-      }
+pluginManagement {
+  repositories {
+    google()
+    jcenter()
+    gradlePluginPortal()
+  }
+  resolutionStrategy {
+    eachPlugin {
+      if (requested.id.id.startsWith("com.android"))
+        useModule("com.android.tools.build:gradle:$agpVersion")
+    }
   }
 }

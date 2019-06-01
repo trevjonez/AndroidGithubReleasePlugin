@@ -16,79 +16,51 @@
 
 package com.trevjonez.agrp
 
+import com.trevjonez.github.gradle.dslFun
 import org.gradle.api.Transformer
-import java.util.*
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 
-@Suppress("unused")
-open class AgrpConfigExtension(val name: String) {
+interface ReleaseConfig {
+  val tagName: Property<String>
+  val targetCommitish: Property<String>
+  val releaseName: Property<String>
+  val releaseBody: Property<String>
+  val draft: Property<Boolean>
+  val preRelease: Property<Boolean>
+  val overwrite: Property<Boolean>
+  val tagModifier: Property<Transformer<String, String>>
+}
 
-  var apiUrl: String? = null
+interface AgrpConfig : ReleaseConfig {
+  val assets: ConfigurableFileCollection
+}
 
-  var owner: String? = null
-  var repo: String? = null
-  var accessToken: String? = null
-  var tagName: String? = null
+abstract class AgrpConfigExtension(val name: String, objects: ObjectFactory) : AgrpConfig, ExtensionAware {
 
-  var targetCommitish: String? = null
-  var releaseName: String? = null
-  var releasebody: String? = null
-  var draft: Boolean? = null
-  var preRelease: Boolean? = null
+  override val tagModifier: Property<Transformer<String, String>> =
+      objects.property(Transformer::class.java) as Property<Transformer<String, String>>
 
-  var overwrite: Boolean? = null
-  var tagModifier: Transformer<String, String>? = null
-
-  internal val assets = LinkedHashSet<String>()
-
-  fun assets(vararg assetPaths: String) {
-    this.assets.addAll(assetPaths)
+  init {
+    targetCommitish.convention("master")
+    draft.convention(false)
+    preRelease.convention(false)
+    overwrite.convention(false)
   }
 
-  fun apiUrl(apiUrl: String) {
-    this.apiUrl = apiUrl
-  }
-
-  fun owner(owner: String) {
-    this.owner = owner
-  }
-
-  fun repo(repo: String) {
-    this.repo = repo
-  }
-
-  fun accessToken(accessToken: String) {
-    this.accessToken = accessToken
-  }
-
-  fun tagName(tagName: String) {
-    this.tagName = tagName
-  }
-
-  fun targetCommitish(targetCommitish: String) {
-    this.targetCommitish = targetCommitish
-  }
-
-  fun releaseName(releaseName: String) {
-    this.releaseName = releaseName
-  }
-
-  fun releasebody(releasebody: String) {
-    this.releasebody = releasebody
-  }
-
-  fun draft(draft: Boolean) {
-    this.draft = draft
-  }
-
-  fun preRelease(preRelease: Boolean) {
-    this.preRelease = preRelease
-  }
-
-  fun overwrite(overwrite: Boolean) {
-    this.overwrite = overwrite
-  }
-
-  fun tagModifier(tagModifier: Transformer<String, String>) {
-    this.tagModifier = tagModifier
+  fun tagName(value: Any) = tagName.dslFun(value)
+  fun targetCommitish(value: Any) = targetCommitish.dslFun(value)
+  fun releaseName(value: Any) = releaseName.dslFun(value)
+  fun releaseBody(value: Any) = releaseBody.dslFun(value)
+  fun draft(value: Any) = draft.dslFun(value)
+  fun preRelease(value: Any) = preRelease.dslFun(value)
+  fun overwrite(value: Any) = overwrite.dslFun(value)
+  fun tagModifier(value: Transformer<String, String>) = tagModifier.dslFun(value)
+  fun tagModifier(value: Provider<Transformer<String, String>>) = tagModifier.dslFun(value)
+  fun assets(vararg values: Any) {
+    this.assets.from(values)
   }
 }

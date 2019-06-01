@@ -14,21 +14,10 @@
  * limitations under the License.
  */
 
-buildscript {
-  repositories {
-    jcenter()
-    google()
-  }
-  dependencies {
-    classpath group: 'com.android.tools.build', name: 'gradle', version: '3.4.0'
-  }
-}
-
 plugins {
   id 'com.trevjonez.AndroidGithubReleasePlugin'
+  id 'com.android.application'
 }
-
-apply plugin: 'com.android.application'
 
 android {
   compileSdkVersion 28
@@ -60,16 +49,16 @@ repositories {
   google()
 }
 
-Properties properties = new Properties()
-properties.load(project.file('local.properties').newDataInputStream())
+GithubApi {
+  owner "trevjonez"
+  repo "PluginTesting"
+  authToken pluginTestingToken
+}
 
 AndroidGithubRelease {
 
   defaultConfig {
-    tagName "0.3.0"
-    owner "trevjonez"
-    repo "PluginTesting"
-    accessToken properties.getProperty("GITHUB_API_TOKEN")
+    tagName "0.4.0"
     overwrite true
   }
 

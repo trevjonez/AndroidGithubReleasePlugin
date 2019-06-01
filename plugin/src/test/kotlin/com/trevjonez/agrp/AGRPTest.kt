@@ -24,35 +24,36 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 class AGRPTest {
   @get:Rule
   var testProjectDir = TemporaryFolder()
 
   lateinit var buildFile: File
-  lateinit var propertiesFile: File
+  lateinit var settingsFile: File
+  lateinit var localDotPropertiesFile: File
+  lateinit var gradleDotPropertiesFile: File
+
+  val agpVersion by systemProperty()
+  val pluginTestingToken by systemProperty()
 
   @Before
   fun setUp() {
     buildFile = testProjectDir.newFile("build.gradle")
-    propertiesFile = testProjectDir.newFile("local.properties")
+
+    gradleDotPropertiesFile = testProjectDir.newFile("gradle.properties")
+    gradleDotPropertiesFile.writeText("agpVersion=$agpVersion\n")
+    gradleDotPropertiesFile.appendText("pluginTestingToken=$pluginTestingToken\n")
+
+    val settings = File(javaClass.classLoader.getResource("settings.groovy").path)
+    settingsFile = testProjectDir.newFile("settings.gradle")
+    settingsFile.writeBytes(settings.readBytes())
 
     val localProp = File(javaClass.classLoader.getResource("local.properties").path)
-    propertiesFile.writeBytes(localProp.readBytes())
-  }
-
-  @Test
-  @Throws(Exception::class)
-  fun applyPlugin() {
-    val project = ProjectBuilder.builder().build()
-
-    project.pluginManager.apply("com.android.application")
-    project.pluginManager.apply("com.trevjonez.AndroidGithubReleasePlugin")
-
-    val baseExtension = project.extensions.findByName("AndroidGithubRelease") as ExtensionAware
-    assertThat(baseExtension)
-      .isNotNull()
-      .isInstanceOf(AgrpBaseExtension::class.java)
+    localDotPropertiesFile = testProjectDir.newFile("local.properties")
+    localDotPropertiesFile.writeBytes(localProp.readBytes())
   }
 
   @Test
@@ -172,5 +173,13 @@ class AGRPTest {
         "createFudgePecanReleaseGithubRelease",
         "uploadFudgePecanReleaseAsset0",
         "uploadFudgePecanReleaseAssets")
+  }
+
+  private fun systemProperty(): ReadOnlyProperty<Any, String> {
+    return object : ReadOnlyProperty<Any, String> {
+      override fun getValue(thisRef: Any, property: KProperty<*>): String {
+        return System.getProperty(property.name)
+      }
+    }
   }
 }

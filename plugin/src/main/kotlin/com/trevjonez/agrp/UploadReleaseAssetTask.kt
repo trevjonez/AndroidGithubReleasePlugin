@@ -34,11 +34,11 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-open class UploadReleaseAssetTask : AgrpTask() {
+abstract class UploadReleaseAssetTask : AgrpTask() {
   lateinit var createTask: TaskProvider<CreateReleaseTask>
 
-  @Input
-  val assetFile: RegularFileProperty = project.objects.fileProperty()
+  @get:Input
+  abstract val assetFile: RegularFileProperty
 
   @TaskAction
   fun uploadAsset() {
@@ -68,20 +68,22 @@ open class UploadReleaseAssetTask : AgrpTask() {
       (URLConnection.getFileNameMap().getContentTypeFor(rawFile.name) ?: "application/octet-stream") to rawFile
     }
 
+    project.logger.info("Uploading file: ${uploadFile.absolutePath}")
+    project.logger.info("To: ${createTask.get().response.upload_url}")
     val uploadUrl = createTask.get().response.upload_url!!.replace("{?name,label}", "")
 
-    val uploadResult = config.releaseApi
+    val uploadResult = releaseApi
       .uploadAsset(
         uploadUrl,
         uploadFile.name,
-        "token ${config.accessToken}",
+        "token ${authToken.get()}",
         contentType,
         RequestBody.create(null, uploadFile)
       )
       .execute()
 
     if (!uploadResult.isSuccessful) {
-      project.logger.lifecycle("Outbound request URL on failed asset upload was: `$uploadUrl`")
+      project.logger.lifecycle("Outbound request URL on failed asset upload was: `$uploadUrl` name=${uploadFile.name}")
       project.logger.lifecycle("Upload result failed with code: ${uploadResult.code()}")
       throw GradleException("Asset \"${uploadFile.name}\" upload failed: ${uploadResult.errorBody()!!.string()}")
     }

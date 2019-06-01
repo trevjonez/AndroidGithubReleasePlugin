@@ -18,95 +18,56 @@ package com.trevjonez.agrp
 
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.internal.tasks.factory.dependsOn
+import com.trevjonez.github.gradle.GithubApiPlugin
 import org.gradle.api.DefaultTask
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.UnknownDomainObjectException
-import org.gradle.api.plugins.ExtensionAware
 
-abstract class AbsAgrpPlugin : Plugin<Project> {
+abstract class AbsAgrpPlugin : GithubApiPlugin() {
 
-  protected lateinit var project: Project
-  private lateinit var baseExtension: AgrpBaseExtension
+  private lateinit var agrpExtension: AgrpExtension
 
-  abstract fun registerTasksForVariants()
-
-  private fun createExtension() {
-    baseExtension = project.extensions.create("AndroidGithubRelease", AgrpBaseExtension::class.java, project)
-  }
-
-  override fun apply(target: Project) {
-    project = target
-    createExtension()
-//    project.afterEvaluate {
-    registerTasksForVariants()
-//    }
+  override fun createConfigExt() {
+    agrpExtension = target.extensions.create("AndroidGithubRelease", AgrpExtension::class.java, target)
   }
 
   protected fun registerTasksForVariant(variant: BaseVariant) {
-    val configHelper = ConfigurationResolutionHelper(
-      project,
-      gatherConfigExtensions(project, variant)
-    )
+    val configHelper = CascadingReleaseInputHelper(target, gatherConfigExtensions(variant))
 
-    val createTask = project.tasks.register(
+    val createTask = target.tasks.register(
       "create${variant.name.capitalize()}GithubRelease",
       CreateReleaseTask::class.java
     ) {
       it.group = AGRP_GROUP
       it.description = "Create a release/tag on github for the \"${variant.name}\" build variant"
       it.config = configHelper
+      it.setApiConfig(configExtension)
     }
 
     val variantAssetTasks = configHelper.configs
       .flatMap { it.assets }
       .mapIndexed { index, asset ->
-        project.tasks.register(
+        target.tasks.register(
           "upload${variant.name.capitalize()}Asset$index",
           UploadReleaseAssetTask::class.java
         ) {
           it.group = AGRP_GROUP
           it.description = "Upload the asset \"$it\" to a release on github for the \"${variant.name}\" build variant"
           it.createTask = createTask
-          it.assetFile.set(project.file(asset))
+          it.assetFile.set(asset)
           it.config = configHelper
+          it.setApiConfig(configExtension)
         }.dependsOn(createTask)
       }
 
-    project.tasks.register("upload${variant.name.capitalize()}Assets", DefaultTask::class.java) {
+    target.tasks.register("upload${variant.name.capitalize()}Assets", DefaultTask::class.java) {
       it.group = AGRP_GROUP
       it.description = "Upload all assets to a release on github for the \"${variant.name}\" build variant"
     }.dependsOn(variantAssetTasks)
   }
 
-  private fun gatherConfigExtensions(project: Project, variant: BaseVariant): Set<AgrpConfigExtension> =
-      LinkedHashSet<AgrpConfigExtension>().apply {
-        add((baseExtension as ExtensionAware).extensions.getByName("defaultConfig") as AgrpConfigExtension)
-
-        //Flavors in order
-        variant.productFlavors.forEach {
-          addOrLog({ baseExtension.androidConfigs.getByName(it.name) },
-            "No AndroidGithubReleasePlugin config with name \"${it.name}\"",
-            project)
-        }
-
-        //Debug / Release
-        addOrLog({ baseExtension.androidConfigs.getByName(variant.buildType.name) },
-          "No AndroidGithubReleasePlugin config with name \"${variant.buildType.name}\"",
-          project)
-
-        //Full variant name
-        addOrLog({ baseExtension.androidConfigs.getByName(variant.name) },
-          "No AndroidGithubReleasePlugin config with name \"${variant.name}\"",
-          project)
-      }
-
-  private fun <T> MutableSet<T>.addOrLog(action: () -> T, message: String, project: Project) {
-    try {
-      this.add(action.invoke())
-    } catch (e: UnknownDomainObjectException) {
-      project.logger.info(message)
-    }
+  private fun gatherConfigExtensions(variant: BaseVariant): Set<AgrpConfigExtension> {
+    val defaultConfig = agrpExtension.extensions.getByName("defaultConfig") as AgrpConfigExtension
+    val candidates = variant.productFlavors.map { it.name } + variant.buildType.name + variant.name
+    return (listOf(defaultConfig) + candidates.mapNotNull { agrpExtension.androidConfigs.findByName(it) }).toSet()
   }
 
   companion object {

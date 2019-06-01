@@ -45,7 +45,7 @@ class AndroidGithubReleasePlugin : Plugin<Project> {
 
   private inline fun <reified T : Plugin<Project>> Project.missingPlugin(msg: String = ""): Nothing {
     throw MissingPluginException(
-      """Failed to configure ${AndroidGithubReleasePlugin::class.java.name} plugin on project: $path
+      """Failed to configure ${AndroidGithubReleasePlugin::class.java.name} plugin on target: $path
           |  Expected plugin: `${T::class.java.name}` was not applied.
           |  $msg""".trimMargin()
     )

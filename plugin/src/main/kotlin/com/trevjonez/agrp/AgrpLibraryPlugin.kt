@@ -18,11 +18,12 @@ package com.trevjonez.agrp
 
 import com.android.build.gradle.LibraryExtension
 
-class AgrpLibraryPlugin : AbsAgrpPlugin() {
-  override fun registerTasksForVariants() {
-    project.extensions.getByType(LibraryExtension::class.java)
-      .libraryVariants.all { variant ->
-      project.afterEvaluate { registerTasksForVariant(variant) }
-    }
+abstract class AgrpLibraryPlugin : AbsAgrpPlugin() {
+  override fun registerTasks() {
+    target.extensions.getByType(LibraryExtension::class.java)
+      .libraryVariants
+      .all { variant ->
+        target.afterEvaluate { registerTasksForVariant(variant) }
+      }
   }
 }

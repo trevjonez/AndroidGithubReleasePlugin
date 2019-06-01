@@ -16,10 +16,13 @@
 
 package com.trevjonez.agrp
 
-import org.gradle.api.DefaultTask
+import com.trevjonez.github.gradle.GithubApiTask
+import com.trevjonez.github.releases.Release
 import org.gradle.api.tasks.Nested
 
-abstract class AgrpTask : DefaultTask() {
+abstract class AgrpTask : GithubApiTask() {
   @get:Nested
-  lateinit var config: ConfigurationResolutionHelper
+  lateinit var config: CascadingReleaseInputHelper
+
+  val releaseApi by githubApi<Release.Api>()
 }
