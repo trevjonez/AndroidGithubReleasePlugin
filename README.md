@@ -6,7 +6,19 @@ The DSL is designed to mimic the android build plugin DSL for type and flavor co
    
 Installation & Usage
 --------------------
-In the root `build.gradle` file add the appropriate jitpack repository and classpath dependency. 
+The plugin is now hosted on the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.trevjonez.AndroidGithubReleasePlugin): 
+```groovy
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.trevjonez.AndroidGithubReleasePlugin:plugin:1.2.0'
+    } 
+}
+```
+
+Or you can have it provided on demand by [Jitpack](https://jitpack.io/#trevjonez/AndroidGithubReleasePlugin):
 ```groovy
 buildscript {
     repositories {
