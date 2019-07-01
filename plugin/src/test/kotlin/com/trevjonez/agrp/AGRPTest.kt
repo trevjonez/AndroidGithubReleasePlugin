@@ -19,6 +19,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.GradleRunner
+import org.junit.Assume.assumeNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -178,7 +179,9 @@ class AGRPTest {
   private fun systemProperty(): ReadOnlyProperty<Any, String> {
     return object : ReadOnlyProperty<Any, String> {
       override fun getValue(thisRef: Any, property: KProperty<*>): String {
-        return System.getProperty(property.name)
+        val prop = System.getProperty(property.name)
+        assumeNotNull(prop)
+        return prop
       }
     }
   }
