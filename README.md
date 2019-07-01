@@ -34,12 +34,15 @@ In the app or library module apply and configure the plugin as desired
 ```groovy
 apply plugin: 'com.trevjonez.AndroidGithubReleasePlugin'
 
+GithubApi {
+  owner "RepoOwner"
+  repo "RepoName"
+  authToken GITHUB_API_TOKEN
+}
+
 AndroidGithubRelease {
   defaultConfig {
     tagName "1.0.0"
-    owner "RepoOwner"
-    repo "RepoName"
-    accessToken GITHUB_API_TOKEN
     assets 'build/outputs'
   }
 
@@ -56,12 +59,14 @@ AndroidGithubRelease {
 }
 ```
 
-The `defaultConfig` block as well as the named blocks have the following api options
-
+The [`GithubApi`](https://github.com/trevjonez/github-api) block exposes top level configuration which is used as a convention input to the tasks registered by this plugin.
 - apiUrl(String) default: `https://api.github.com`, base url for github api
 - owner(String) **required**, username or organization name
 - repo(String) **required**, name of the repository
-- accessToken(String) **required**, key requires `repo` permission
+- authToken(String) **required**, key requires `repo` permission
+
+
+The `defaultConfig` block as well as the named blocks have the following api options
 - tagName(String) **required**, name of new or existing tag
 - targetCommitish(String) default: `master`, see [github api docs](https://developer.github.com/v3/repos/releases/#create-a-release) for details
 - releaseName(String) _optional_, release title
