@@ -17,9 +17,9 @@
 package com.trevjonez.agrp
 
 import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.trevjonez.github.gradle.GithubApiPlugin
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskProvider
 
 abstract class AbsAgrpPlugin : GithubApiPlugin() {
 
@@ -42,26 +42,27 @@ abstract class AbsAgrpPlugin : GithubApiPlugin() {
       it.setApiConfig(configExtension)
     }
 
-    val variantAssetTasks = configHelper.configs
-      .flatMap { it.assets }
-      .mapIndexed { index, asset ->
-        target.tasks.register(
-          "upload${variant.name.capitalize()}Asset$index",
-          UploadReleaseAssetTask::class.java
-        ) {
-          it.group = AGRP_GROUP
-          it.description = "Upload the asset \"$it\" to a release on github for the \"${variant.name}\" build variant"
-          it.createTask = createTask
-          it.assetFile.set(asset)
-          it.config = configHelper
-          it.setApiConfig(configExtension)
-        }.dependsOn(createTask)
-      }
+    val variantAssetTasks: List<TaskProvider<UploadReleaseAssetTask>> =
+        configHelper.configs
+          .flatMap { it.assets }
+          .mapIndexed { index, asset ->
+            target.tasks.register("upload${variant.name.capitalize()}Asset$index", UploadReleaseAssetTask::class.java) {
+              it.group = AGRP_GROUP
+              it.description =
+                  "Upload the asset \"$it\" to a release on github for the \"${variant.name}\" build variant"
+              it.createTask = createTask
+              it.assetFile.set(asset)
+              it.config = configHelper
+              it.setApiConfig(configExtension)
+              it.dependsOn(createTask)
+            }
+          }
 
     target.tasks.register("upload${variant.name.capitalize()}Assets", DefaultTask::class.java) {
       it.group = AGRP_GROUP
       it.description = "Upload all assets to a release on github for the \"${variant.name}\" build variant"
-    }.dependsOn(variantAssetTasks)
+      it.dependsOn(variantAssetTasks)
+    }
   }
 
   private fun gatherConfigExtensions(variant: BaseVariant): Set<AgrpConfigExtension> {

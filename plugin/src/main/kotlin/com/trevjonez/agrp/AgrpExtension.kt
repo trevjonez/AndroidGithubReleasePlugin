@@ -26,8 +26,7 @@ abstract class AgrpExtension(project: Project) : ExtensionAware {
       project.container(AgrpConfigExtension::class.java)
 
   init {
-    @Suppress("LeakingThis")
-    val defaultConfig = extensions.create("defaultConfig", AgrpConfigExtension::class.java, "defaultConfig")
+    extensions.create("defaultConfig", AgrpConfigExtension::class.java, "defaultConfig")
   }
 
   fun androidConfigs(closure: Closure<Any>) {
