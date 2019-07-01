@@ -16,10 +16,12 @@
 
 buildscript {
   repositories {
+    gradlePluginPortal()
     jcenter()
   }
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    classpath "com.gradle.publish:plugin-publish-plugin:0.10.1"
   }
 }
 

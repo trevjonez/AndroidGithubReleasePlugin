@@ -18,14 +18,23 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 apply plugin: 'kotlin'
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'maven-publish'
+apply plugin: "com.gradle.plugin-publish"
 
 gradlePlugin {
   plugins {
     AGRP {
+      displayName = "com.trevjonez.AndroidGithubReleasePlugin"
+      description = "Android variant aware tasks for creating github releases and uploading assets"
       id = "com.trevjonez.AndroidGithubReleasePlugin"
       implementationClass = "com.trevjonez.agrp.AndroidGithubReleasePlugin"
     }
   }
+}
+
+pluginBundle {
+  website = "https://github.com/trevjonez/AndroidGithubReleasePlugin"
+  vcsUrl = "https://github.com/trevjonez/AndroidGithubReleasePlugin.git"
+  tags = ["android", "github", "release", "tag"]
 }
 
 tasks.named("test").configure {
