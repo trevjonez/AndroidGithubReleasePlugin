@@ -40,7 +40,7 @@ pluginBundle {
 tasks.named("test").configure {
   systemProperty("org.gradle.testkit.debug", true)
   systemProperty("agpVersion", agpVersion)
-  systemProperty("pluginTestingToken", pluginTestingToken)
+  systemProperty("pluginTestingToken", findProperty("pluginTestingToken"))
 }
 
 tasks.withType(KotlinCompile).all {
