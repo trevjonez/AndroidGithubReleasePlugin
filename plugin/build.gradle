@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,37 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 apply plugin: 'kotlin'
 apply plugin: 'java-gradle-plugin'
+apply plugin: 'maven-publish'
+apply plugin: "com.gradle.plugin-publish"
 
 gradlePlugin {
   plugins {
     AGRP {
+      displayName = "com.trevjonez.AndroidGithubReleasePlugin"
+      description = "Android variant aware tasks for creating github releases and uploading assets"
       id = "com.trevjonez.AndroidGithubReleasePlugin"
-      implementationClass = "com.trevjonez.agrp.AGRP"
+      implementationClass = "com.trevjonez.agrp.AndroidGithubReleasePlugin"
     }
   }
 }
 
-def okhttp3_version = '3.6.0'
-def retrofit2_version = '2.2.0'
-
-dependencies {
-  compile gradleApi()
-
-  compile group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: kotlin_version
-
-  compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp3_version
-//  compile group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: okhttp3_version
-
-  compile group: 'com.squareup.retrofit2', name: 'retrofit', version: retrofit2_version
-  compile group: 'com.squareup.retrofit2', name: 'converter-moshi', version: retrofit2_version
-
-  compile group: 'com.android.tools.build', name: 'gradle', version: '2.3.0'
-
-  testCompile group: 'junit', name: 'junit', version: '4.12'
-  testCompile group: 'org.assertj', name: 'assertj-core', version: '3.5.2'
+pluginBundle {
+  website = "https://github.com/trevjonez/AndroidGithubReleasePlugin"
+  vcsUrl = "https://github.com/trevjonez/AndroidGithubReleasePlugin.git"
+  tags = ["android", "github", "release", "tag"]
 }
 
-apply from: 'maven.gradle'
+tasks.named("test").configure {
+  systemProperty("org.gradle.testkit.debug", true)
+  systemProperty("agpVersion", agpVersion)
+  systemProperty("pluginTestingToken", pluginTestingToken)
+}
+
+tasks.withType(KotlinCompile).all {
+  kotlinOptions {
+    jvmTarget = "1.8"
+    freeCompilerArgs += "-Xjsr305=strict"
+    freeCompilerArgs += '-XXLanguage:+NewInference'
+  }
+}
+
+dependencies {
+  api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+  api "com.trevjonez.github:releases:0.2.0"
+  api "com.trevjonez.github:gradle-helpers:0.2.0"
+  api "com.android.tools.build:gradle:$agpVersion"
+
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.assertj:assertj-core:3.5.2'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  getArchiveClassifier().set('sources')
+  from sourceSets.main.allSource
+}

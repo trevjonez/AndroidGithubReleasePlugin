@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,18 @@
  * limitations under the License.
  */
 
-buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath group: 'com.android.tools.build', name: 'gradle', version: '2.3.1'
-  }
-}
-
 plugins {
+  id 'com.android.application'
   id 'com.trevjonez.AndroidGithubReleasePlugin'
 }
 
-apply plugin: 'com.android.application'
-
 android {
-  buildToolsVersion '25.0.2'
-  compileSdkVersion 25
+  compileSdkVersion 28
 
   defaultConfig {
     applicationId 'com.test.script'
-    minSdkVersion 16
-    targetSdkVersion 25
+    minSdkVersion 23
+    targetSdkVersion 28
     versionCode 1
     versionName '1.0.0'
   }
@@ -67,18 +56,19 @@ android {
 
 repositories {
   jcenter()
+  google()
 }
 
-Properties properties = new Properties()
-properties.load(project.file('local.properties').newDataInputStream())
+GithubApi {
+  owner "trevjonez"
+  repo "PluginTesting"
+  authToken pluginTestingToken
+}
 
 AndroidGithubRelease {
 
   defaultConfig {
-    tagName "0.3.0"
-    owner "trevjonez"
-    repo "PluginTesting"
-    accessToken properties.getProperty("GITHUB_API_TOKEN")
+    tagName "0.4.0"
     overwrite true
     assets 'build.gradle'
   }

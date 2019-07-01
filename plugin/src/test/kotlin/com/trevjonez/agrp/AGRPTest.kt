@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,37 +24,36 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
-/**
- * @author TrevJonez
- */
 class AGRPTest {
-  @Rule @JvmField var testProjectDir = TemporaryFolder()
+  @get:Rule
+  var testProjectDir = TemporaryFolder()
 
   lateinit var buildFile: File
-  lateinit var propertiesFile: File
+  lateinit var settingsFile: File
+  lateinit var localDotPropertiesFile: File
+  lateinit var gradleDotPropertiesFile: File
+
+  val agpVersion by systemProperty()
+  val pluginTestingToken by systemProperty()
 
   @Before
   fun setUp() {
     buildFile = testProjectDir.newFile("build.gradle")
-    propertiesFile = testProjectDir.newFile("local.properties")
+
+    gradleDotPropertiesFile = testProjectDir.newFile("gradle.properties")
+    gradleDotPropertiesFile.writeText("agpVersion=$agpVersion\n")
+    gradleDotPropertiesFile.appendText("pluginTestingToken=$pluginTestingToken\n")
+
+    val settings = File(javaClass.classLoader.getResource("settings.groovy").path)
+    settingsFile = testProjectDir.newFile("settings.gradle")
+    settingsFile.writeBytes(settings.readBytes())
 
     val localProp = File(javaClass.classLoader.getResource("local.properties").path)
-    propertiesFile.writeBytes(localProp.readBytes())
-  }
-
-  @Test
-  @Throws(Exception::class)
-  fun applyPlugin() {
-    val project = ProjectBuilder.builder().build()
-
-    project.pluginManager.apply("com.android.application")
-    project.pluginManager.apply("com.trevjonez.AndroidGithubReleasePlugin")
-
-    val baseExtension = project.extensions.findByName("AndroidGithubRelease") as ExtensionAware
-    assertThat(baseExtension)
-            .isNotNull()
-            .isInstanceOf(AgrpBaseExtension::class.java)
+    localDotPropertiesFile = testProjectDir.newFile("local.properties")
+    localDotPropertiesFile.writeBytes(localProp.readBytes())
   }
 
   @Test
@@ -69,27 +68,26 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("3.5")
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments("tasks", "uploadDebugAssets")
-            .withDebug(true)
-            .build()
+      .withProjectDir(testProjectDir.root)
+      .withPluginClasspath()
+      .withArguments("tasks", "uploadDebugAssets", "--stacktrace")
+      .forwardOutput()
+      .build()
 
     print(buildResult.output)
 
     assertThat(buildResult.output)
-            .contains("Android Github Release Plugin",
+      .contains("Android Github Release Plugin",
 
-                    "createDebugGithubRelease",
-                    "uploadDebugAsset0",
-                    "uploadDebugAsset1",
-                    "uploadDebugAssets",
+        "createDebugGithubRelease",
+        "uploadDebugAsset0",
+        "uploadDebugAsset1",
+        "uploadDebugAssets",
 
-                    "createReleaseGithubRelease",
-                    "uploadReleaseAsset0",
-                    "uploadReleaseAsset1",
-                    "uploadReleaseAssets")
+        "createReleaseGithubRelease",
+        "uploadReleaseAsset0",
+        "uploadReleaseAsset1",
+        "uploadReleaseAssets")
   }
 
   @Test
@@ -98,42 +96,41 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("3.5")
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments("tasks", "uploadStrawberryDebugAssets")
-            .withDebug(true)
-            .build()
+      .withProjectDir(testProjectDir.root)
+      .withPluginClasspath()
+      .withArguments("tasks", "uploadStrawberryDebugAssets", "--stacktrace")
+      .forwardOutput()
+      .build()
 
     print(buildResult.output)
 
     assertThat(buildResult.output)
-            .contains("Android Github Release Plugin",
+      .contains("Android Github Release Plugin",
 
-                    "createVanillaDebugGithubRelease",
-                    "createChocolateDebugGithubRelease",
-                    "createStrawberryDebugGithubRelease",
+        "createVanillaDebugGithubRelease",
+        "createChocolateDebugGithubRelease",
+        "createStrawberryDebugGithubRelease",
 
-                    "createVanillaReleaseGithubRelease",
-                    "createChocolateReleaseGithubRelease",
-                    "createStrawberryReleaseGithubRelease",
+        "createVanillaReleaseGithubRelease",
+        "createChocolateReleaseGithubRelease",
+        "createStrawberryReleaseGithubRelease",
 
-                    "uploadVanillaDebugAsset0",
-                    "uploadVanillaDebugAsset1",
-                    "uploadVanillaDebugAssets",
+        "uploadVanillaDebugAsset0",
+        "uploadVanillaDebugAsset1",
+        "uploadVanillaDebugAssets",
 
-                    "uploadChocolateDebugAsset0",
-                    "uploadChocolateDebugAssets",
+        "uploadChocolateDebugAsset0",
+        "uploadChocolateDebugAssets",
 
-                    "uploadStrawberryDebugAsset0",
-                    "uploadStrawberryDebugAssets",
+        "uploadStrawberryDebugAsset0",
+        "uploadStrawberryDebugAssets",
 
-                    "uploadVanillaReleaseAsset0",
-                    "uploadVanillaReleaseAssets",
+        "uploadVanillaReleaseAsset0",
+        "uploadVanillaReleaseAssets",
 
-                    "uploadChocolateReleaseAssets",
+        "uploadChocolateReleaseAssets",
 
-                    "uploadStrawberryReleaseAssets")
+        "uploadStrawberryReleaseAssets")
   }
 
   @Test
@@ -142,40 +139,47 @@ class AGRPTest {
     buildFile.writeBytes(buildScript.readBytes())
 
     val buildResult = GradleRunner.create()
-            .withGradleVersion("3.5")
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments("tasks", "uploadFudgePecanReleaseAssets")
-            .withDebug(true)
-            .build()
+      .withProjectDir(testProjectDir.root)
+      .withPluginClasspath()
+      .withArguments("tasks", "uploadFudgePecanReleaseAssets", "--stacktrace")
+      .forwardOutput()
+      .build()
 
     print(buildResult.output)
 
     assertThat(buildResult.output)
-            .contains("Android Github Release Plugin",
+      .contains("Android Github Release Plugin",
 
-                    "createChocolatePeanutDebugGithubRelease",
-                    "uploadChocolatePeanutDebugAsset0",
-                    "uploadChocolatePeanutDebugAssets",
+        "createChocolatePeanutDebugGithubRelease",
+        "uploadChocolatePeanutDebugAsset0",
+        "uploadChocolatePeanutDebugAssets",
 
-                    "createChocolatePecanDebugGithubRelease",
-                    "uploadChocolatePecanDebugAsset0",
-                    "uploadChocolatePecanDebugAssets",
+        "createChocolatePecanDebugGithubRelease",
+        "uploadChocolatePecanDebugAsset0",
+        "uploadChocolatePecanDebugAssets",
 
-                    "createChocolatePeanutReleaseGithubRelease",
-                    "uploadChocolatePeanutReleaseAsset0",
-                    "uploadChocolatePeanutReleaseAssets",
+        "createChocolatePeanutReleaseGithubRelease",
+        "uploadChocolatePeanutReleaseAsset0",
+        "uploadChocolatePeanutReleaseAssets",
 
-                    "createChocolatePecanReleaseGithubRelease",
-                    "uploadChocolatePecanReleaseAsset0",
-                    "uploadChocolatePecanReleaseAssets",
+        "createChocolatePecanReleaseGithubRelease",
+        "uploadChocolatePecanReleaseAsset0",
+        "uploadChocolatePecanReleaseAssets",
 
-                    "createFudgePecanDebugGithubRelease",
-                    "uploadFudgePecanDebugAsset0",
-                    "uploadFudgePecanDebugAssets",
+        "createFudgePecanDebugGithubRelease",
+        "uploadFudgePecanDebugAsset0",
+        "uploadFudgePecanDebugAssets",
 
-                    "createFudgePecanReleaseGithubRelease",
-                    "uploadFudgePecanReleaseAsset0",
-                    "uploadFudgePecanReleaseAssets")
+        "createFudgePecanReleaseGithubRelease",
+        "uploadFudgePecanReleaseAsset0",
+        "uploadFudgePecanReleaseAssets")
+  }
+
+  private fun systemProperty(): ReadOnlyProperty<Any, String> {
+    return object : ReadOnlyProperty<Any, String> {
+      override fun getValue(thisRef: Any, property: KProperty<*>): String {
+        return System.getProperty(property.name)
+      }
+    }
   }
 }

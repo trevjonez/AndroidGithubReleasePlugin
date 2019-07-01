@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.trevjonez.agrp.github
+package com.trevjonez.agrp
 
-/**
- * @author TrevJonez
- */
-class PendingRelease {
-  var tag_name: String? = null
-  var target_commitish: String? = null
-  var name: String? = null
-  var body: String? = null
-  var draft: Boolean? = null
-  var prerelease: Boolean? = null
+import com.android.build.gradle.LibraryExtension
+
+abstract class AgrpLibraryPlugin : AbsAgrpPlugin() {
+  override fun registerTasks() {
+    target.extensions.getByType(LibraryExtension::class.java)
+      .libraryVariants
+      .all { variant ->
+        target.afterEvaluate { registerTasksForVariant(variant) }
+      }
+  }
 }

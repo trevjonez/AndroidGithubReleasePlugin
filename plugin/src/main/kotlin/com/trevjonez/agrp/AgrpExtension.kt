@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,12 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 
-/**
- * @author TrevJonez
- */
-open class AgrpBaseExtension(project: Project) {
-  val androidConfigs: NamedDomainObjectContainer<AgrpConfigExtension> = project.container(AgrpConfigExtension::class.java)
+abstract class AgrpExtension(project: Project) : ExtensionAware {
+  val androidConfigs: NamedDomainObjectContainer<AgrpConfigExtension> =
+      project.container(AgrpConfigExtension::class.java)
 
   init {
-    @Suppress("LeakingThis")
-    val defaultConfig = (this as ExtensionAware).extensions.create("defaultConfig", AgrpConfigExtension::class.java, "defaultConfig")
-    defaultConfig.apiUrl = "https://api.github.com"
+    extensions.create("defaultConfig", AgrpConfigExtension::class.java, "defaultConfig")
   }
 
   fun androidConfigs(closure: Closure<Any>) {

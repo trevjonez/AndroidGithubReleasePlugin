@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,16 @@
  * limitations under the License.
  */
 
-apply plugin: 'maven'
+package com.trevjonez.agrp
 
-group = 'com.github.trevjonez'
+import com.android.build.gradle.AppExtension
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-  classifier = 'sources'
-  from sourceSets.main.allSource
-}
-
-artifacts {
-  archives sourcesJar
-}
-
-install {
-  repositories.mavenInstaller {
-    pom.artifactId = 'AndroidGithubReleasePlugin'
-    pom.project {
-      inceptionYear '2016'
-      licenses {
-        license {
-          name 'The Apache Software License, Version 2.0'
-          url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-          distribution 'repo'
-        }
+abstract class AgrpApplicationPlugin : AbsAgrpPlugin() {
+  override fun registerTasks() {
+    target.extensions.getByType(AppExtension::class.java)
+      .applicationVariants
+      .all { variant ->
+        target.afterEvaluate { registerTasksForVariant(variant) }
       }
-    }
   }
 }

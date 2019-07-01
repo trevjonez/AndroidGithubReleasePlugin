@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Trevor Jones
+ * Copyright (c) 2019. Trevor Jones
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,45 +16,64 @@
 
 package com.trevjonez.agrp
 
-import com.trevjonez.agrp.github.ReleaseResponse
+import com.trevjonez.github.releases.Release
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
-import retrofit2.Call
 
-/**
- * @author TrevJonez
- */
-open class CreateReleaseTask : AgrpTask() {
+abstract class CreateReleaseTask : AgrpTask() {
 
-  lateinit var response: ReleaseResponse
+  lateinit var response: Release
 
   @TaskAction
   fun createRelease() {
+    val createRequest = Release.Request(
+      config.modifiedTagName,
+      config.targetCommitish.orNull,
+      config.releaseName.orNull,
+      config.releaseBody.orNull,
+      config.draft.orNull,
+      config.preRelease.orNull
+    )
 
-    val releaseLookupResponse = releaseService().getRelease(owner(), repo(), pendingRelease().tag_name!!, "token ${accessToken()}").execute()
+    val releaseLookupResponse = releaseApi.byTag(
+      owner.get(),
+      repo.get(),
+      config.modifiedTagName,
+      "token ${authToken.get()}"
+    ).execute()
 
-    if (releaseLookupResponse.isSuccessful && !overwrite()) {
+    if (releaseLookupResponse.isSuccessful && !config.overwrite.get()) {
       throw GradleException("A release with the specified tag name already exists.\n" +
-              "You can configure this task to overwrite the release @ that tag name with `overwrite = true`\n" +
-              releaseLookupResponse.body().toString())
+          "You can configure this task to overwrite the release @ that tag name with `overwrite = true`\n" +
+          releaseLookupResponse.body().toString())
     }
-
-    val postPatchCall: Call<ReleaseResponse>?
-    if (releaseLookupResponse.isSuccessful) {
-      postPatchCall = releaseService().patchRelease(owner(), repo(), releaseLookupResponse.body().id!!, pendingRelease(), "token ${accessToken()}")
+    val existingRelease = releaseLookupResponse.body()
+    val postPatchCall = if (releaseLookupResponse.isSuccessful) {
+      releaseApi.edit(
+        owner.get(),
+        repo.get(),
+        existingRelease!!.id,
+        "token ${authToken.get()}",
+        createRequest)
     } else {
-      postPatchCall = releaseService().postRelease(owner(), repo(), pendingRelease(), "token ${accessToken()}")
+      releaseApi.create(
+        owner.get(),
+        repo.get(),
+        "token ${authToken.get()}",
+        createRequest
+      )
     }
 
     val postPatchResponse = postPatchCall.execute()
 
     if (!postPatchResponse.isSuccessful) {
-      project.logger.info("Post/Patch api call failed with code: ${postPatchResponse.code()}")
-      throw GradleException("The ${postPatchCall.request().method()} github api call failed:\n${postPatchResponse.errorBody().string()}\n")
+      val method = postPatchCall.request().method()
+      project.logger.lifecycle("$method github release api call failed with code: ${postPatchResponse.code()}")
+      throw GradleException("$method github release api call failed:\n${postPatchResponse.errorBody()!!.string()}\n")
     }
 
-    response = postPatchResponse.body()
+    response = postPatchResponse.body()!!
 
-    println("Github release created: ${response.html_url}")
+    project.logger.lifecycle("Github release created: ${response.html_url}")
   }
 }
