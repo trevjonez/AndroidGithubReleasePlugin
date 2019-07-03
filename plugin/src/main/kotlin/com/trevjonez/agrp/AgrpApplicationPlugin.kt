@@ -23,7 +23,7 @@ abstract class AgrpApplicationPlugin : AbsAgrpPlugin() {
     target.extensions.getByType(AppExtension::class.java)
       .applicationVariants
       .all { variant ->
-        target.afterEvaluate { registerTasksForVariant(variant) }
+        registerTasksForVariant(variant)
       }
   }
 }

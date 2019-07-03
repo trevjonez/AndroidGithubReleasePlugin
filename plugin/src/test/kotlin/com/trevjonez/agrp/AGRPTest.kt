@@ -75,20 +75,22 @@ class AGRPTest {
       .forwardOutput()
       .build()
 
-    print(buildResult.output)
-
     assertThat(buildResult.output)
-      .contains("Android Github Release Plugin",
+      .contains(
+        "Android Github Release Plugin tasks",
 
-        "createDebugGithubRelease",
-        "uploadDebugAsset0",
-        "uploadDebugAsset1",
-        "uploadDebugAssets",
+        "createDebugGithubRelease - Create a release/tag on github",
+        "uploadDebugAsset0 - Upload the asset", "build.gradle\" to github",
+        "uploadDebugAsset1 - Upload the asset", "testDirectory\" to github",
+        "uploadDebugAssets - Upload all assets to github (lifecycle task)",
 
-        "createReleaseGithubRelease",
-        "uploadReleaseAsset0",
-        "uploadReleaseAsset1",
-        "uploadReleaseAssets")
+        "createReleaseGithubRelease - Create a release/tag on github",
+        "uploadReleaseAsset0 - Upload the asset", "build.gradle\" to github",
+        "uploadReleaseAsset1 - Upload the asset", "local.properties\" to github",
+        "uploadReleaseAssets - Upload all assets to github (lifecycle task)",
+
+        "> Task :doNothingDebug"
+      )
   }
 
   @Test
@@ -102,8 +104,6 @@ class AGRPTest {
       .withArguments("tasks", "uploadStrawberryDebugAssets", "--stacktrace")
       .forwardOutput()
       .build()
-
-    print(buildResult.output)
 
     assertThat(buildResult.output)
       .contains("Android Github Release Plugin",
@@ -145,8 +145,6 @@ class AGRPTest {
       .withArguments("tasks", "uploadFudgePecanReleaseAssets", "--stacktrace")
       .forwardOutput()
       .build()
-
-    print(buildResult.output)
 
     assertThat(buildResult.output)
       .contains("Android Github Release Plugin",

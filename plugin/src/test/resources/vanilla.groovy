@@ -58,3 +58,10 @@ AndroidGithubRelease {
     }
   }
 }
+
+android.applicationVariants.all { variant ->
+  def doNothing = tasks.register("doNothing${variant.name.capitalize()}")
+  tasks.named("create${variant.name.capitalize()}GithubRelease") {
+    dependsOn(doNothing)
+  }
+}

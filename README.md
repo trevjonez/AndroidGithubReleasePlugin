@@ -13,7 +13,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.trevjonez.AndroidGithubReleasePlugin:plugin:1.2.0'
+        classpath 'com.trevjonez.AndroidGithubReleasePlugin:plugin:1.2.2'
     } 
 }
 ```
@@ -25,7 +25,7 @@ buildscript {
         maven { url "https://jitpack.io" }
     }
     dependencies {
-        classpath 'com.github.trevjonez:AndroidGithubReleasePlugin:1.2.0'
+        classpath 'com.github.trevjonez:AndroidGithubReleasePlugin:1.2.2'
     }
 }
 ```

@@ -37,7 +37,7 @@ abstract class AbsAgrpPlugin : GithubApiPlugin() {
       CreateReleaseTask::class.java
     ) {
       it.group = AGRP_GROUP
-      it.description = "Create a release/tag on github for the \"${variant.name}\" build variant"
+      it.description = "Create a release/tag on github"
       it.config = configHelper
       it.setApiConfig(configExtension)
     }
@@ -49,7 +49,7 @@ abstract class AbsAgrpPlugin : GithubApiPlugin() {
             target.tasks.register("upload${variant.name.capitalize()}Asset$index", UploadReleaseAssetTask::class.java) {
               it.group = AGRP_GROUP
               it.description =
-                  "Upload the asset \"$it\" to a release on github for the \"${variant.name}\" build variant"
+                  "Upload the asset \"$asset\" to github"
               it.createTask = createTask
               it.assetFile.set(asset)
               it.config = configHelper
@@ -60,7 +60,7 @@ abstract class AbsAgrpPlugin : GithubApiPlugin() {
 
     target.tasks.register("upload${variant.name.capitalize()}Assets", DefaultTask::class.java) {
       it.group = AGRP_GROUP
-      it.description = "Upload all assets to a release on github for the \"${variant.name}\" build variant"
+      it.description = "Upload all assets to github (lifecycle task)"
       it.dependsOn(variantAssetTasks)
     }
   }
